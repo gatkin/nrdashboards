@@ -1,5 +1,5 @@
 format:
-	python -m black src/ tests/
+	python -m black nrdash/ tests/
 
 install:
 	python -m pip install -U pip
@@ -7,10 +7,10 @@ install:
 	python -m pipenv install --dev
 
 lint:
-	python -m black --check src/ tests/
-	python -m flake8 --max-complexity 10 src/
-	python -m pydocstyle src/
-	python -m pylint --rcfile src/.pylintrc src/
+	python -m black --check nrdash/ tests/
+	python -m flake8 --max-complexity 10 nrdash/
+	python -m pydocstyle nrdash/
+	python -m pylint --rcfile nrdash/.pylintrc nrdash/
 
 per-commit: lint type-check test
 
@@ -18,4 +18,4 @@ test:
 	python -m pytest -vv
 
 type-check:
-	python -m mypy src/
+	python -m mypy nrdash/

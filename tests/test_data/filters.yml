@@ -1,0 +1,27 @@
+filters:
+  simple_base_filter:
+    event: My_Event
+    nrql: WHERE appName = 'MyApp'
+  
+  first_extended_filter:
+    extend:
+      filter: simple_base_filter
+      with: AND server = 'prod1'
+  
+  second_extended_filter:
+    extend:
+      filter: first_extended_filter
+      with: AND environment != 'test' 
+  
+  third_extended_filter:
+    extend:
+      filter: second_extended_filter
+      with: AND environment != 'qa'
+
+  event_only_filter:
+    event: My_Event
+  
+  extend_event_only_filter:
+    extend:
+      filter: event_only_filter
+      with: WHERE server = 'prod2'
