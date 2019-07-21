@@ -1,0 +1,21 @@
+output-selections:
+  latest-timestamp-raw-nrql: LATEST(timestamp)
+  error-percentage-singleton-list:
+    - percentage:
+        function: COUNT(*)
+        condition: WHERE status != 'Success'
+        label: Error Rate
+  latest-success-dict:
+    filter:
+      function: LATEST(timestamp)
+      condition: WHERE status = 'Success'
+  mixed:
+    - percentage:
+        function: COUNT(*)
+        condition: WHERE status != 'Success'
+    - LATEST(timestamp) AS `Latest Event`
+    - filter:
+        function: LATEST(timestamp)
+        condition: WHERE status = 'Success'
+        label: Latest Success
+

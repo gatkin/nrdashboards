@@ -2,7 +2,12 @@
 import attr
 import yaml
 
-from .models import DashboardConfiguration, InvalidExtendingFilterException, QueryFilter
+from .models import (
+    DashboardConfiguration,
+    InvalidExtendingFilterException,
+    QueryFilter,
+    QueryOutputSelection,
+)
 
 
 @attr.s(frozen=True)
@@ -19,11 +24,84 @@ def parse_file(config_file_name: str) -> DashboardConfiguration:
     with open(config_file_name, "r") as config_file:
         config = yaml.safe_load(config_file)
 
-    return DashboardConfiguration(filters=_parse_filters(config))
+    return DashboardConfiguration(
+        filters=_parse_filters(config),
+        output_selections=_parse_output_selections(config),
+    )
+
+
+def _parse_output_selections(config):
+    """Parse output selections from configuration."""
+    if "output-selections" not in config:
+        return {}
+
+    output_configs = config["output-selections"]
+
+    output_selections = {}
+    for name, output_config in output_configs.items():
+        if isinstance(output_config, str):
+            # Raw NRQL
+            output_selections[name] = QueryOutputSelection(
+                name=name, nrql=f"SELECT {output_config}"
+            )
+        elif isinstance(output_config, list):
+            nrql_components = [
+                _parse_output_selection_nrql_component(component_config)
+                for component_config in output_config
+            ]
+
+            output_selections[name] = QueryOutputSelection(
+                name=name, nrql=f"SELECT {', '.join(nrql_components)}"
+            )
+        elif isinstance(output_config, dict):
+            output_selections[name] = QueryOutputSelection(
+                name=name,
+                nrql=f"SELECT {_parse_output_selection_nrql_component(output_config)}",
+            )
+        else:
+            raise InvalidExtendingFilterException(output_config)
+
+    return output_selections
+
+
+def _parse_output_selection_nrql_component(output_config):
+    """Parse an output selection configuration dictionary."""
+    if isinstance(output_config, str):
+        # Raw NRQL
+        return output_config
+
+    if not isinstance(output_config, dict):
+        raise InvalidExtendingFilterException(output_config)
+
+    if "filter" in output_config:
+        return _create_filtered_output_selection_nrql("FILTER", output_config["filter"])
+
+    if "percentage" in output_config:
+        return _create_filtered_output_selection_nrql(
+            "PERCENTAGE", output_config["percentage"]
+        )
+
+    raise InvalidExtendingFilterException(output_config)
+
+
+def _create_filtered_output_selection_nrql(output_function, output_config):
+    """Create a filtered output selection."""
+    function = output_config["function"]
+    function_filter = output_config["condition"]
+    label = output_config.get("label")
+    if label:
+        label_nrql = f" AS `{label}`"
+    else:
+        label_nrql = ""
+
+    return f"{output_function}({function}, {function_filter}){label_nrql}"
 
 
 def _parse_filters(config):
     """Parse filters from configuration."""
+    if "filters" not in config:
+        return {}
+
     filter_configs = config["filters"]
 
     base_filters = {}
