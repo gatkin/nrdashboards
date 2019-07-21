@@ -5,6 +5,7 @@ import yaml
 from .models import (
     DashboardConfiguration,
     InvalidExtendingFilterException,
+    QueryDisplay,
     QueryFilter,
     QueryOutputSelection,
 )
@@ -27,7 +28,21 @@ def parse_file(config_file_name: str) -> DashboardConfiguration:
     return DashboardConfiguration(
         filters=_parse_filters(config),
         output_selections=_parse_output_selections(config),
+        displays=_parse_displays(config),
     )
+
+
+def _parse_displays(config):
+    """Parse display options from configuration."""
+    if "displays" not in config:
+        return {}
+
+    display_configs = config["displays"]
+    displays = {}
+    for name, display_config in display_configs.items():
+        displays[name] = QueryDisplay(name=name, nrql=display_config)
+
+    return displays
 
 
 def _parse_output_selections(config):

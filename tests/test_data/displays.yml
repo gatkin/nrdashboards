@@ -1,0 +1,5 @@
+displays:
+  facet-feed-type: FACET Feed_Type LIMIT 30
+  time-series-by-feed-type: TIMESERIES FACET Feed_Type
+  compare-with-one-week-ago: COMPARE WITH 1 WEEK AGO
+    

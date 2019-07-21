@@ -34,8 +34,17 @@ class QueryOutputSelection:
 
 
 @attr.s(frozen=True)
+class QueryDisplay:
+    """A query display component."""
+
+    name: str = attr.ib()
+    nrql: str = attr.ib()
+
+
+@attr.s(frozen=True)
 class DashboardConfiguration:
     """Dashboard configuration."""
 
     filters: Dict[str, QueryFilter] = attr.ib()
     output_selections: Dict[str, QueryOutputSelection] = attr.ib()
+    displays: Dict[str, QueryDisplay] = attr.ib()

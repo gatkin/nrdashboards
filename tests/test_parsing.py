@@ -6,7 +6,9 @@ from nrdash import models, parsing
 
 
 def test_parse_empty_file():
-    expected = models.DashboardConfiguration(filters={}, output_selections={})
+    expected = models.DashboardConfiguration(
+        filters={}, output_selections={}, displays={}
+    )
 
     actual = _parse_test_file("empty.yml")
 
@@ -68,9 +70,30 @@ def test_parse_output_selections():
     _assert_can_parse_output_selections("output_selections.yml", expected)
 
 
+def test_parse_displays():
+    expected = {
+        "facet-feed-type": models.QueryDisplay(
+            name="facet-feed-type", nrql="FACET Feed_Type LIMIT 30"
+        ),
+        "time-series-by-feed-type": models.QueryDisplay(
+            name="time-series-by-feed-type", nrql="TIMESERIES FACET Feed_Type"
+        ),
+        "compare-with-one-week-ago": models.QueryDisplay(
+            name="compare-with-one-week-ago", nrql="COMPARE WITH 1 WEEK AGO"
+        ),
+    }
+
+    _assert_can_parse_displays("displays.yml", expected)
+
+
 def test_raises_exception_for_missing_extended_query():
     with pytest.raises(models.InvalidExtendingFilterException):
         _parse_test_file("missing_extended_filter.yml")
+
+
+def _assert_can_parse_displays(file_name, expected):
+    actual = _parse_test_file(file_name)
+    assert expected == actual.displays
 
 
 def _assert_can_parse_filters(file_name, expected):
