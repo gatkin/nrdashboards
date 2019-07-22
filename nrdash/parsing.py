@@ -1,10 +1,13 @@
 """Parses input configuration files."""
+from typing import Dict
+
 import attr
-import yaml
 
 from .models import (
-    DashboardConfiguration,
     InvalidExtendingFilterException,
+    InvalidOutputConfigurationException,
+    InvalidQueryConfigurationException,
+    Query,
     QueryDisplay,
     QueryFilter,
     QueryOutputSelection,
@@ -20,19 +23,7 @@ class _ExtendingQueryFilter:
     extended_filter: str = attr.ib()
 
 
-def parse_file(config_file_name: str) -> DashboardConfiguration:
-    """Parse a configuration file."""
-    with open(config_file_name, "r") as config_file:
-        config = yaml.safe_load(config_file)
-
-    return DashboardConfiguration(
-        filters=_parse_filters(config),
-        output_selections=_parse_output_selections(config),
-        displays=_parse_displays(config),
-    )
-
-
-def _parse_displays(config):
+def parse_displays(config: Dict) -> Dict[str, QueryDisplay]:
     """Parse display options from configuration."""
     if "displays" not in config:
         return {}
@@ -45,7 +36,33 @@ def _parse_displays(config):
     return displays
 
 
-def _parse_output_selections(config):
+def parse_filters(config: Dict) -> Dict[str, QueryFilter]:
+    """Parse filters from configuration."""
+    if "filters" not in config:
+        return {}
+
+    filter_configs = config["filters"]
+
+    base_filters = {}
+    extending_filters = {}
+    for name, filter_config in filter_configs.items():
+        if "extend" in filter_config:
+            extending_filters[name] = _ExtendingQueryFilter(
+                name=name,
+                extension_nrql=filter_config["extend"]["with"],
+                extended_filter=filter_config["extend"]["filter"],
+            )
+        else:
+            base_filters[name] = QueryFilter(
+                name=name,
+                nrql=filter_config.get("nrql", ""),
+                event=filter_config["event"],
+            )
+
+    return _build_extended_filters(base_filters, extending_filters)
+
+
+def parse_output_selections(config: Dict) -> Dict[str, QueryOutputSelection]:
     """Parse output selections from configuration."""
     if "output-selections" not in config:
         return {}
@@ -74,68 +91,34 @@ def _parse_output_selections(config):
                 nrql=f"SELECT {_parse_output_selection_nrql_component(output_config)}",
             )
         else:
-            raise InvalidExtendingFilterException(output_config)
+            raise InvalidOutputConfigurationException(output_config)
 
     return output_selections
 
 
-def _parse_output_selection_nrql_component(output_config):
-    """Parse an output selection configuration dictionary."""
-    if isinstance(output_config, str):
-        # Raw NRQL
-        return output_config
-
-    if not isinstance(output_config, dict):
-        raise InvalidExtendingFilterException(output_config)
-
-    if "filter" in output_config:
-        return _create_filtered_output_selection_nrql("FILTER", output_config["filter"])
-
-    if "percentage" in output_config:
-        return _create_filtered_output_selection_nrql(
-            "PERCENTAGE", output_config["percentage"]
-        )
-
-    raise InvalidExtendingFilterException(output_config)
-
-
-def _create_filtered_output_selection_nrql(output_function, output_config):
-    """Create a filtered output selection."""
-    function = output_config["function"]
-    function_filter = output_config["condition"]
-    label = output_config.get("label")
-    if label:
-        label_nrql = f" AS `{label}`"
-    else:
-        label_nrql = ""
-
-    return f"{output_function}({function}, {function_filter}){label_nrql}"
-
-
-def _parse_filters(config):
-    """Parse filters from configuration."""
-    if "filters" not in config:
+def parse_queries(config: Dict) -> Dict[str, Query]:
+    """Parse queries from configuration."""
+    if "queries" not in config:
         return {}
 
-    filter_configs = config["filters"]
+    query_configs = config["queries"]
+    filters = parse_filters(config)
+    output_selections = parse_output_selections(config)
+    displays = parse_displays(config)
 
-    base_filters = {}
-    extending_filters = {}
-    for name, filter_config in filter_configs.items():
-        if "extend" in filter_config:
-            extending_filters[name] = _ExtendingQueryFilter(
-                name=name,
-                extension_nrql=filter_config["extend"]["with"],
-                extended_filter=filter_config["extend"]["filter"],
+    queries = {}
+    for name, query_config in query_configs.items():
+        if isinstance(query_config, str):
+            # Raw NRQL
+            queries[name] = Query(name=name, nrql=query_config)
+        elif isinstance(query_config, dict):
+            queries[name] = _parse_query_config(
+                name, query_config, filters, output_selections, displays
             )
         else:
-            base_filters[name] = QueryFilter(
-                name=name,
-                nrql=filter_config.get("nrql", ""),
-                event=filter_config["event"],
-            )
+            raise InvalidOutputConfigurationException(f"{name}: {query_config}")
 
-    return _build_extended_filters(base_filters, extending_filters)
+    return queries
 
 
 def _build_extended_filters(base_filters, extending_filters):
@@ -177,3 +160,79 @@ def _build_extended_filters(base_filters, extending_filters):
         filters_to_resolve -= len(resolvable_filters)
 
     return base_filters
+
+
+def _create_filtered_output_selection_nrql(output_function, output_config):
+    """Create a filtered output selection."""
+    function = output_config["function"]
+    function_filter = output_config["condition"]
+    label = output_config.get("label")
+    if label:
+        label_nrql = f" AS `{label}`"
+    else:
+        label_nrql = ""
+
+    return f"{output_function}({function}, {function_filter}){label_nrql}"
+
+
+def _parse_output_selection_nrql_component(output_config):
+    """Parse an output selection configuration dictionary."""
+    if isinstance(output_config, str):
+        # Raw NRQL
+        return output_config
+
+    if not isinstance(output_config, dict):
+        raise InvalidOutputConfigurationException(output_config)
+
+    if "filter" in output_config:
+        return _create_filtered_output_selection_nrql("FILTER", output_config["filter"])
+
+    if "percentage" in output_config:
+        return _create_filtered_output_selection_nrql(
+            "PERCENTAGE", output_config["percentage"]
+        )
+
+    raise InvalidOutputConfigurationException(output_config)
+
+
+def _parse_query_config(query_name, query_config, filters, output_selections, displays):
+    """Parse a query configuration."""
+    if "filter" not in query_config:
+        raise InvalidQueryConfigurationException(
+            f"Filter required for query {query_name}"
+        )
+
+    if "output" not in query_config:
+        raise InvalidQueryConfigurationException(
+            f"Output required for query {query_name}"
+        )
+
+    filter_name = query_config["filter"]
+    query_filter = filters.get(filter_name)
+    if not query_filter:
+        raise InvalidQueryConfigurationException(
+            f"Invalid filter {filter_name} specified for query {query_name}"
+        )
+
+    output_name = query_config["output"]
+    query_output = output_selections.get(output_name)
+    if not query_output:
+        raise InvalidQueryConfigurationException(
+            f"Invalid output selection {output_name} specified for query {query_name}"
+        )
+
+    query_display_nrql = ""
+    display_name = query_config.get("display")
+    if display_name:
+        # Query display is optional
+        display = displays.get(display_name)
+        if not display:
+            raise InvalidQueryConfigurationException(
+                f"Invalid display {display_name} specified for query {query_name}"
+            )
+
+        query_display_nrql = f" {display.nrql}"
+
+    query_nrql = f"{query_output.nrql} FROM {query_filter.event} {query_filter.nrql}{query_display_nrql}"
+
+    return Query(name=query_name, nrql=query_nrql)

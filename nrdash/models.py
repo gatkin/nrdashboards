@@ -1,6 +1,4 @@
 """Model defintions."""
-from typing import Dict
-
 import attr
 
 
@@ -14,6 +12,10 @@ class InvalidExtendingFilterException(NrDashException):
 
 class InvalidOutputConfigurationException(NrDashException):
     """Invalid output selection configuration exception."""
+
+
+class InvalidQueryConfigurationException(NrDashException):
+    """Invalid query configuration exception."""
 
 
 @attr.s(frozen=True)
@@ -42,9 +44,8 @@ class QueryDisplay:
 
 
 @attr.s(frozen=True)
-class DashboardConfiguration:
-    """Dashboard configuration."""
+class Query:
+    """An NRQL query."""
 
-    filters: Dict[str, QueryFilter] = attr.ib()
-    output_selections: Dict[str, QueryOutputSelection] = attr.ib()
-    displays: Dict[str, QueryDisplay] = attr.ib()
+    name: str = attr.ib()
+    nrql: str = attr.ib()

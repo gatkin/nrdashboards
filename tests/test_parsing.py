@@ -1,18 +1,17 @@
 import os
 
 import pytest
+import yaml
 
 from nrdash import models, parsing
 
 
 def test_parse_empty_file():
-    expected = models.DashboardConfiguration(
-        filters={}, output_selections={}, displays={}
-    )
+    config = _load_test_file("empty.yml")
 
-    actual = _parse_test_file("empty.yml")
-
-    assert expected == actual
+    assert {} == parsing.parse_filters(config)
+    assert {} == parsing.parse_output_selections(config)
+    assert {} == parsing.parse_displays(config)
 
 
 def test_parse_filters():
@@ -86,27 +85,56 @@ def test_parse_displays():
     _assert_can_parse_displays("displays.yml", expected)
 
 
+def test_parse_queries():
+    expected = {
+        "raw-nrql": models.Query(
+            name="raw-nrql", nrql="SELECT COUNT(*) FROM transactions"
+        ),
+        "with-filter-output": models.Query(
+            name="with-filter-output",
+            nrql="SELECT COUNT(*) FROM AppEvents WHERE env = 'Prod'",
+        ),
+        "with-filter-output-display": models.Query(
+            name="with-filter-output-display",
+            nrql="SELECT COUNT(*) FROM AppEvents WHERE env = 'Prod' FACET EventType LIMIT 30 TIMESERIES",
+        ),
+    }
+
+    _assert_can_parse_queries("queries.yml", expected)
+
+
 def test_raises_exception_for_missing_extended_query():
     with pytest.raises(models.InvalidExtendingFilterException):
-        _parse_test_file("missing_extended_filter.yml")
+        config = _load_test_file("missing_extended_filter.yml")
+        parsing.parse_filters(config)
 
 
 def _assert_can_parse_displays(file_name, expected):
-    actual = _parse_test_file(file_name)
-    assert expected == actual.displays
+    config = _load_test_file(file_name)
+    actual = parsing.parse_displays(config)
+    assert expected == actual
 
 
 def _assert_can_parse_filters(file_name, expected):
-    actual = _parse_test_file(file_name)
-    assert expected == actual.filters
+    config = _load_test_file(file_name)
+    actual = parsing.parse_filters(config)
+    assert expected == actual
 
 
 def _assert_can_parse_output_selections(file_name, expected):
-    actual = _parse_test_file(file_name)
-    assert expected == actual.output_selections
+    config = _load_test_file(file_name)
+    actual = parsing.parse_output_selections(config)
+    assert expected == actual
 
 
-def _parse_test_file(file_name):
+def _assert_can_parse_queries(file_name, expected):
+    config = _load_test_file(file_name)
+    actual = parsing.parse_queries(config)
+    assert expected == actual
+
+
+def _load_test_file(file_name):
     test_dir = os.path.dirname(os.path.abspath(__file__))
     test_file_path = os.path.join(test_dir, "test_data", file_name)
-    return parsing.parse_file(test_file_path)
+    with open(test_file_path, "r") as test_file:
+        return yaml.safe_load(test_file)

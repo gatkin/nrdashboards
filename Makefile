@@ -6,13 +6,13 @@ install:
 	python -m pip install -U pipenv
 	python -m pipenv install --dev
 
-lint:
+lint: type-check
 	python -m black --check nrdash/ tests/
 	python -m flake8 --max-complexity 10 nrdash/
 	python -m pydocstyle nrdash/
 	python -m pylint --rcfile nrdash/.pylintrc nrdash/
 
-per-commit: lint type-check test
+per-commit: lint test
 
 test:
 	python -m pytest -vv
