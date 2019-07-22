@@ -1,4 +1,6 @@
 """Model defintions."""
+from typing import Optional
+
 import attr
 
 
@@ -16,6 +18,10 @@ class InvalidOutputConfigurationException(NrDashException):
 
 class InvalidQueryConfigurationException(NrDashException):
     """Invalid query configuration exception."""
+
+
+class InvalidWidgetConfigurationException(NrDashException):
+    """Invalid widget configuration exception."""
 
 
 @attr.s(frozen=True)
@@ -49,3 +55,13 @@ class Query:
 
     name: str = attr.ib()
     nrql: str = attr.ib()
+
+
+@attr.s(frozen=True)
+class Widget:
+    """A dashboard widget."""
+
+    name: str = attr.ib()
+    title: str = attr.ib()
+    query: str = attr.ib()
+    notes: Optional[str] = attr.ib(default=None)

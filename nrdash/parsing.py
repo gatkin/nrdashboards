@@ -2,15 +2,18 @@
 from typing import Dict
 
 import attr
+import yaml
 
 from .models import (
     InvalidExtendingFilterException,
     InvalidOutputConfigurationException,
     InvalidQueryConfigurationException,
+    InvalidWidgetConfigurationException,
     Query,
     QueryDisplay,
     QueryFilter,
     QueryOutputSelection,
+    Widget,
 )
 
 
@@ -34,6 +37,14 @@ def parse_displays(config: Dict) -> Dict[str, QueryDisplay]:
         displays[name] = QueryDisplay(name=name, nrql=display_config)
 
     return displays
+
+
+def parse_file(file_path: str) -> Dict[str, Query]:
+    """Parse a dashboard configuration file."""
+    with open(file_path, "r") as config_file:
+        config = yaml.safe_load(config_file)
+
+    return parse_queries(config)
 
 
 def parse_filters(config: Dict) -> Dict[str, QueryFilter]:
@@ -119,6 +130,33 @@ def parse_queries(config: Dict) -> Dict[str, Query]:
             raise InvalidOutputConfigurationException(f"{name}: {query_config}")
 
     return queries
+
+
+def parse_widgets(config: Dict) -> Dict[str, Widget]:
+    """Parse dashboard widgets from configuration."""
+    if "widgets" not in config:
+        return {}
+
+    widget_configs = config["widgets"]
+    queries = parse_queries(config)
+
+    widgets = {}
+    for name, widget_config in widget_configs.items():
+        query_name = widget_config["query"]
+        query = queries.get(query_name)
+        if not query:
+            raise InvalidWidgetConfigurationException(
+                f"Invalid query {query_name} specified for widget {name}"
+            )
+
+        widgets[name] = Widget(
+            name=name,
+            title=widget_config["title"],
+            query=query.nrql,
+            notes=widget_config.get("notes"),
+        )
+
+    return widgets
 
 
 def _build_extended_filters(base_filters, extending_filters):

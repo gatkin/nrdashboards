@@ -1,0 +1,14 @@
+queries:
+  transaction-count: SELECT COUNT(*) FROM transactions
+  errors: SELECT COUNT(*) FROM errors
+
+widgets:
+  transaction-count:
+    query: transaction-count
+    title: Transaction Count
+  
+  errors:
+    query: errors
+    title: Application Errors
+    notes: |
+      Some notes for the dashboard

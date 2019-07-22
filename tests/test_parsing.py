@@ -12,6 +12,7 @@ def test_parse_empty_file():
     assert {} == parsing.parse_filters(config)
     assert {} == parsing.parse_output_selections(config)
     assert {} == parsing.parse_displays(config)
+    assert {} == parsing.parse_widgets(config)
 
 
 def test_parse_filters():
@@ -103,6 +104,24 @@ def test_parse_queries():
     _assert_can_parse_queries("queries.yml", expected)
 
 
+def test_parse_widgets():
+    expected = {
+        "transaction-count": models.Widget(
+            name="transaction-count",
+            query="SELECT COUNT(*) FROM transactions",
+            title="Transaction Count",
+        ),
+        "errors": models.Widget(
+            name="errors",
+            title="Application Errors",
+            query="SELECT COUNT(*) FROM errors",
+            notes="Some notes for the dashboard",
+        ),
+    }
+
+    _assert_can_parse_widgets("widgets.yml", expected)
+
+
 def test_raises_exception_for_missing_extended_query():
     with pytest.raises(models.InvalidExtendingFilterException):
         config = _load_test_file("missing_extended_filter.yml")
@@ -130,6 +149,12 @@ def _assert_can_parse_output_selections(file_name, expected):
 def _assert_can_parse_queries(file_name, expected):
     config = _load_test_file(file_name)
     actual = parsing.parse_queries(config)
+    assert expected == actual
+
+
+def _assert_can_parse_widgets(file_name, expected):
+    config = _load_test_file(file_name)
+    actual = parsing.parse_widgets(config)
     assert expected == actual
 
 
