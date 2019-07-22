@@ -5,6 +5,8 @@ import attr
 import yaml
 
 from .models import (
+    Dashboard,
+    DahsboardWidget,
     InvalidExtendingFilterException,
     InvalidOutputConfigurationException,
     InvalidQueryConfigurationException,
@@ -24,6 +26,35 @@ class _ExtendingQueryFilter:
     name: str = attr.ib()
     extension_nrql: str = attr.ib()
     extended_filter: str = attr.ib()
+
+
+def parse_dashboards(config: Dict) -> Dict[str, Dashboard]:
+    """Parse dashboards from configuration."""
+    if "dashboards" not in config:
+        return {}
+
+    dashboard_configs = config["dashboards"]
+    widgets = parse_widgets(config)
+
+    dashboards = {}
+    for name, dashboard_config in dashboard_configs.items():
+        dashboard_widgets = []
+        for widget_config in dashboard_config["widgets"]:
+            dashboard_widgets.append(
+                DahsboardWidget(
+                    widget=widgets[widget_config["widget"]],
+                    row=widget_config["row"],
+                    column=widget_config["column"],
+                    width=widget_config["width"],
+                    height=widget_config["height"],
+                )
+            )
+
+        dashboards[name] = Dashboard(
+            name=name, title=dashboard_config["title"], widgets=dashboard_widgets
+        )
+
+    return dashboards
 
 
 def parse_displays(config: Dict) -> Dict[str, QueryDisplay]:

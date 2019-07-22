@@ -1,5 +1,5 @@
 """Model defintions."""
-from typing import Optional
+from typing import Optional, List
 
 import attr
 
@@ -59,9 +59,29 @@ class Query:
 
 @attr.s(frozen=True)
 class Widget:
-    """A dashboard widget."""
+    """A widget that can be put on multiple dashboards."""
 
     name: str = attr.ib()
     title: str = attr.ib()
     query: str = attr.ib()
     notes: Optional[str] = attr.ib(default=None)
+
+
+@attr.s(frozen=True)
+class DahsboardWidget:
+    """A widget that is placed on a single dashboard."""
+
+    widget: Widget = attr.ib()
+    row: int = attr.ib()
+    column: int = attr.ib()
+    width: int = attr.ib()
+    height: int = attr.ib()
+
+
+@attr.s(frozen=True)
+class Dashboard:
+    """A New Relic dashboard."""
+
+    name: str = attr.ib()
+    title: str = attr.ib()
+    widgets: List[DahsboardWidget] = attr.ib()

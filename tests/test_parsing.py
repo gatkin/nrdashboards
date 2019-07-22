@@ -13,6 +13,7 @@ def test_parse_empty_file():
     assert {} == parsing.parse_output_selections(config)
     assert {} == parsing.parse_displays(config)
     assert {} == parsing.parse_widgets(config)
+    assert {} == parsing.parse_dashboards(config)
 
 
 def test_parse_filters():
@@ -122,10 +123,69 @@ def test_parse_widgets():
     _assert_can_parse_widgets("widgets.yml", expected)
 
 
+def test_parse_widgets():
+    expected = {
+        "dashboard-one": models.Dashboard(
+            name="dashboard-one",
+            title="Dashboard 1",
+            widgets=[
+                models.DahsboardWidget(
+                    widget=models.Widget(
+                        name="transaction-count",
+                        query="SELECT COUNT(*) FROM transactions",
+                        title="Transaction Count",
+                    ),
+                    row=1,
+                    column=1,
+                    width=1,
+                    height=1,
+                ),
+                models.DahsboardWidget(
+                    widget=models.Widget(
+                        name="errors",
+                        title="Application Errors",
+                        query="SELECT COUNT(*) FROM errors",
+                        notes="Some notes for the dashboard",
+                    ),
+                    row=1,
+                    column=2,
+                    width=2,
+                    height=1,
+                ),
+            ],
+        ),
+        "dashboard-two": models.Dashboard(
+            name="dashboard-two",
+            title="Dashboard 2",
+            widgets=[
+                models.DahsboardWidget(
+                    widget=models.Widget(
+                        name="transaction-count",
+                        query="SELECT COUNT(*) FROM transactions",
+                        title="Transaction Count",
+                    ),
+                    row=1,
+                    column=1,
+                    width=3,
+                    height=3,
+                )
+            ],
+        ),
+    }
+
+    _assert_can_parse_dashboards("dashboards.yml", expected)
+
+
 def test_raises_exception_for_missing_extended_query():
     with pytest.raises(models.InvalidExtendingFilterException):
         config = _load_test_file("missing_extended_filter.yml")
         parsing.parse_filters(config)
+
+
+def _assert_can_parse_dashboards(file_name, expected):
+    config = _load_test_file(file_name)
+    actual = parsing.parse_dashboards(config)
+    assert expected == actual
 
 
 def _assert_can_parse_displays(file_name, expected):
