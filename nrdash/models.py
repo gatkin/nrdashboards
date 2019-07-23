@@ -4,6 +4,31 @@ from typing import Optional, List
 import attr
 
 
+WIDGET_VISUALIZATIONS = {
+    "billboard",
+    "gauge",
+    "billboard_comparison",
+    "facet_bar_chart",
+    "faceted_line_chart",
+    "facet_pie_chart",
+    "facet_table",
+    "faceted_area_chart",
+    "heatmap",
+    "attribute_sheet",
+    "single_event",
+    "histogram",
+    "funnel",
+    "raw_json",
+    "event_feed",
+    "event_table",
+    "uniques_list",
+    "line_chart",
+    "comparison_line_chart",
+    "markdown",
+    "metric_line_chart",
+}
+
+
 class NrDashException(Exception):
     """Base class for all application-specific exceptions."""
 
@@ -22,6 +47,10 @@ class InvalidQueryConfigurationException(NrDashException):
 
 class InvalidWidgetConfigurationException(NrDashException):
     """Invalid widget configuration exception."""
+
+
+class NewRelicApiException(NrDashException):
+    """New Relic API exception."""
 
 
 @attr.s(frozen=True)
@@ -64,6 +93,7 @@ class Widget:
     name: str = attr.ib()
     title: str = attr.ib()
     query: str = attr.ib()
+    visualization: str = attr.ib()
     notes: Optional[str] = attr.ib(default=None)
 
 

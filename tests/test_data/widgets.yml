@@ -6,9 +6,11 @@ widgets:
   transaction-count:
     query: transaction-count
     title: Transaction Count
+    visualization: billboard
   
   errors:
     query: errors
     title: Application Errors
+    visualization: billboard
     notes: |
       Some notes for the dashboard

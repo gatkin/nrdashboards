@@ -111,12 +111,14 @@ def test_parse_widgets():
             name="transaction-count",
             query="SELECT COUNT(*) FROM transactions",
             title="Transaction Count",
+            visualization="billboard",
         ),
         "errors": models.Widget(
             name="errors",
             title="Application Errors",
             query="SELECT COUNT(*) FROM errors",
             notes="Some notes for the dashboard",
+            visualization="billboard",
         ),
     }
 
@@ -134,6 +136,7 @@ def test_parse_widgets():
                         name="transaction-count",
                         query="SELECT COUNT(*) FROM transactions",
                         title="Transaction Count",
+                        visualization="billboard",
                     ),
                     row=1,
                     column=1,
@@ -146,6 +149,7 @@ def test_parse_widgets():
                         title="Application Errors",
                         query="SELECT COUNT(*) FROM errors",
                         notes="Some notes for the dashboard",
+                        visualization="billboard",
                     ),
                     row=1,
                     column=2,
@@ -163,6 +167,7 @@ def test_parse_widgets():
                         name="transaction-count",
                         query="SELECT COUNT(*) FROM transactions",
                         title="Transaction Count",
+                        visualization="billboard",
                     ),
                     row=1,
                     column=1,

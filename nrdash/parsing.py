@@ -70,12 +70,12 @@ def parse_displays(config: Dict) -> Dict[str, QueryDisplay]:
     return displays
 
 
-def parse_file(file_path: str) -> Dict[str, Query]:
+def parse_file(file_path: str) -> Dict[str, Dashboard]:
     """Parse a dashboard configuration file."""
     with open(file_path, "r") as config_file:
         config = yaml.safe_load(config_file)
 
-    return parse_queries(config)
+    return parse_dashboards(config)
 
 
 def parse_filters(config: Dict) -> Dict[str, QueryFilter]:
@@ -185,6 +185,7 @@ def parse_widgets(config: Dict) -> Dict[str, Widget]:
             title=widget_config["title"],
             query=query.nrql,
             notes=widget_config.get("notes"),
+            visualization=widget_config["visualization"],
         )
 
     return widgets
