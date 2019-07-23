@@ -68,7 +68,7 @@ class Widget:
 
 
 @attr.s(frozen=True)
-class DahsboardWidget:
+class DashboardWidget:
     """A widget that is placed on a single dashboard."""
 
     widget: Widget = attr.ib()
@@ -84,4 +84,4 @@ class Dashboard:
 
     name: str = attr.ib()
     title: str = attr.ib()
-    widgets: List[DahsboardWidget] = attr.ib()
+    widgets: List[DashboardWidget] = attr.ib()

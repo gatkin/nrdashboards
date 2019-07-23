@@ -6,7 +6,7 @@ import yaml
 
 from .models import (
     Dashboard,
-    DahsboardWidget,
+    DashboardWidget,
     InvalidExtendingFilterException,
     InvalidOutputConfigurationException,
     InvalidQueryConfigurationException,
@@ -41,7 +41,7 @@ def parse_dashboards(config: Dict) -> Dict[str, Dashboard]:
         dashboard_widgets = []
         for widget_config in dashboard_config["widgets"]:
             dashboard_widgets.append(
-                DahsboardWidget(
+                DashboardWidget(
                     widget=widgets[widget_config["widget"]],
                     row=widget_config["row"],
                     column=widget_config["column"],

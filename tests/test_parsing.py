@@ -129,7 +129,7 @@ def test_parse_widgets():
             name="dashboard-one",
             title="Dashboard 1",
             widgets=[
-                models.DahsboardWidget(
+                models.DashboardWidget(
                     widget=models.Widget(
                         name="transaction-count",
                         query="SELECT COUNT(*) FROM transactions",
@@ -140,7 +140,7 @@ def test_parse_widgets():
                     width=1,
                     height=1,
                 ),
-                models.DahsboardWidget(
+                models.DashboardWidget(
                     widget=models.Widget(
                         name="errors",
                         title="Application Errors",
@@ -158,7 +158,7 @@ def test_parse_widgets():
             name="dashboard-two",
             title="Dashboard 2",
             widgets=[
-                models.DahsboardWidget(
+                models.DashboardWidget(
                     widget=models.Widget(
                         name="transaction-count",
                         query="SELECT COUNT(*) FROM transactions",
