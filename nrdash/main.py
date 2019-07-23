@@ -20,8 +20,8 @@ def build(config_file, api_key, account_id):
             client.update_dashboard(dashboard_id, dashboard)
         else:
             print(f"Creating {dashboard.name}")
-            client.create_dashboard(dashboard_id, dashboard)
+            client.create_dashboard(dashboard)
 
 
 if __name__ == "__main__":
-    build()
+    build()  # pylint: disable=no-value-for-parameter,too-many-function-args
