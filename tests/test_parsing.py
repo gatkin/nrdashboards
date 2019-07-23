@@ -10,7 +10,7 @@ def test_parse_empty_file():
     config = _load_test_file("empty.yml")
 
     assert {} == parsing.parse_filters(config)
-    assert {} == parsing.parse_output_selections(config)
+    assert {} == parsing.parse_output_selections(config, {})
     assert {} == parsing.parse_displays(config)
     assert {} == parsing.parse_widgets(config)
     assert {} == parsing.parse_dashboards(config)
@@ -61,6 +61,10 @@ def test_parse_output_selections():
         "latest-success-dict": models.QueryOutputSelection(
             name="latest-success-dict",
             nrql="SELECT FILTER(LATEST(timestamp), WHERE status = 'Success')",
+        ),
+        "referenced-filter": models.QueryOutputSelection(
+            name="referenced-filter",
+            nrql="SELECT FILTER(LATEST(timestamp), WHERE env = 'prod')",
         ),
         "mixed": models.QueryOutputSelection(
             name="mixed",
@@ -207,7 +211,8 @@ def _assert_can_parse_filters(file_name, expected):
 
 def _assert_can_parse_output_selections(file_name, expected):
     config = _load_test_file(file_name)
-    actual = parsing.parse_output_selections(config)
+    filters = parsing.parse_filters(config)
+    actual = parsing.parse_output_selections(config, filters)
     assert expected == actual
 
 

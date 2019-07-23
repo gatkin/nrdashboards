@@ -104,7 +104,9 @@ def parse_filters(config: Dict) -> Dict[str, QueryFilter]:
     return _build_extended_filters(base_filters, extending_filters)
 
 
-def parse_output_selections(config: Dict) -> Dict[str, QueryOutputSelection]:
+def parse_output_selections(
+    config: Dict, filters: Dict[str, QueryFilter]
+) -> Dict[str, QueryOutputSelection]:
     """Parse output selections from configuration."""
     if "output-selections" not in config:
         return {}
@@ -120,7 +122,7 @@ def parse_output_selections(config: Dict) -> Dict[str, QueryOutputSelection]:
             )
         elif isinstance(output_config, list):
             nrql_components = [
-                _parse_output_selection_nrql_component(component_config)
+                _parse_output_selection_nrql_component(component_config, filters)
                 for component_config in output_config
             ]
 
@@ -130,7 +132,7 @@ def parse_output_selections(config: Dict) -> Dict[str, QueryOutputSelection]:
         elif isinstance(output_config, dict):
             output_selections[name] = QueryOutputSelection(
                 name=name,
-                nrql=f"SELECT {_parse_output_selection_nrql_component(output_config)}",
+                nrql=f"SELECT {_parse_output_selection_nrql_component(output_config, filters)}",
             )
         else:
             raise InvalidOutputConfigurationException(output_config)
@@ -145,7 +147,7 @@ def parse_queries(config: Dict) -> Dict[str, Query]:
 
     query_configs = config["queries"]
     filters = parse_filters(config)
-    output_selections = parse_output_selections(config)
+    output_selections = parse_output_selections(config, filters)
     displays = parse_displays(config)
 
     queries = {}
@@ -232,20 +234,25 @@ def _build_extended_filters(base_filters, extending_filters):
     return base_filters
 
 
-def _create_filtered_output_selection_nrql(output_function, output_config):
+def _create_filtered_output_selection_nrql(output_function, output_config, filters):
     """Create a filtered output selection."""
     function = output_config["function"]
-    function_filter = output_config["condition"]
     label = output_config.get("label")
     if label:
         label_nrql = f" AS `{label}`"
     else:
         label_nrql = ""
 
-    return f"{output_function}({function}, {function_filter}){label_nrql}"
+    function_filter = output_config["condition"]
+    if function_filter in filters:
+        condition_nrql = filters[function_filter].nrql
+    else:
+        condition_nrql = function_filter
+
+    return f"{output_function}({function}, {condition_nrql}){label_nrql}"
 
 
-def _parse_output_selection_nrql_component(output_config):
+def _parse_output_selection_nrql_component(output_config, filters):
     """Parse an output selection configuration dictionary."""
     if isinstance(output_config, str):
         # Raw NRQL
@@ -255,11 +262,13 @@ def _parse_output_selection_nrql_component(output_config):
         raise InvalidOutputConfigurationException(output_config)
 
     if "filter" in output_config:
-        return _create_filtered_output_selection_nrql("FILTER", output_config["filter"])
+        return _create_filtered_output_selection_nrql(
+            "FILTER", output_config["filter"], filters
+        )
 
     if "percentage" in output_config:
         return _create_filtered_output_selection_nrql(
-            "PERCENTAGE", output_config["percentage"]
+            "PERCENTAGE", output_config["percentage"], filters
         )
 
     raise InvalidOutputConfigurationException(output_config)
