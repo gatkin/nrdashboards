@@ -1,45 +1,27 @@
-"""Manage New Relic dashboards in source control."""
-# import sys
+"""Main entry point for New Relic dashboard builder CLI tool."""
+import click
 
-# import yaml
-
-# from nrdash.parsing import parse_file
-# from nrdash.nr_api import NewRelicApiClient
+from nrdash import new_relic_api, parsing
 
 
-# def get_dashboard():
-#     """Get dashboard."""
-#     client = create_new_relic_client()
-#     dashboard = client.get_dashboard(868869)
-#     print(dashboard)
+@click.command()
+@click.argument("config-file", type=str)
+@click.option("--api-key", type=str, required=True)
+@click.option("--account-id", type=int, required=True)
+def build(config_file, api_key, account_id):
+    """Build New Relic dashboards based on YAML configuration."""
+    dashboards = parsing.parse_file(config_file)
+    client = new_relic_api.NewRelicApiClient(api_key, account_id)
+
+    for dashboard in dashboards.values():
+        dashboard_id = client.get_dashboard_id_by_title(dashboard.title)
+        if dashboard_id:
+            print(f"Udating {dashboard.name}")
+            client.update_dashboard(dashboard_id, dashboard)
+        else:
+            print(f"Creating {dashboard.name}")
+            client.create_dashboard(dashboard_id, dashboard)
 
 
-# def print_queries():
-#     queries = parse_file(sys.argv[1])
-#     for query in queries.values():
-#         print(query)
-
-
-# def create_dashboard():
-#     client = create_new_relic_client()
-#     dashboards = parse_file(sys.argv[1])
-#     dashboard = list(dashboards.values())[0]
-
-#     dashboard_id = client.get_dashboard_by_title(dashboard.title)
-#     if not dashboard_id:
-#         client.create_dashboard(dashboard)
-#     else:
-#         print(f'Existing dashboard {dashboard_id}')
-#         client.update_dashboard(dashboard_id, dashboard)
-
-
-# def create_new_relic_client():
-#     with open("secrets/secrets.yml", "r") as secrets_file:
-#         secrets = yaml.safe_load(secrets_file)
-
-#     return NewRelicApiClient(secrets["api-key"], secrets["account-id"])
-
-
-# if __name__ == "__main__":
-#     # get_dashboard()
-#     create_dashboard()
+if __name__ == "__main__":
+    build()

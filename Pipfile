@@ -8,6 +8,7 @@ pyyaml = "*"
 attrs = "*"
 typing = "*"
 requests = "*"
+click = "*"
 
 [dev-packages]
 flake8 = "*"

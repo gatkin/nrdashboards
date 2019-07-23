@@ -88,8 +88,6 @@ class NewRelicApiClient:
                 f"Failed creating dashboard {dashboard.name} with status = {response.status_code}, response = {response.content}"
             )
 
-        print(response)
-
     def _widget_to_dict(self, widget: DashboardWidget) -> Dict:
         """Convert a widget into a dictionary that can be posted to the New Relic API."""
         return {
