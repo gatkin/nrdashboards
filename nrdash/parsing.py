@@ -16,6 +16,7 @@ from .models import (
     QueryFilter,
     QueryOutputSelection,
     Widget,
+    WidgetVisualization,
 )
 
 
@@ -65,7 +66,11 @@ def parse_displays(config: Dict) -> Dict[str, QueryDisplay]:
     display_configs = config["displays"]
     displays = {}
     for name, display_config in display_configs.items():
-        displays[name] = QueryDisplay(name=name, nrql=display_config)
+        displays[name] = QueryDisplay(
+            name=name,
+            nrql=display_config.get("nrql"),
+            visualization=WidgetVisualization.from_str(display_config["visualization"]),
+        )
 
     return displays
 
@@ -152,15 +157,9 @@ def parse_queries(config: Dict) -> Dict[str, Query]:
 
     queries = {}
     for name, query_config in query_configs.items():
-        if isinstance(query_config, str):
-            # Raw NRQL
-            queries[name] = Query(name=name, nrql=query_config)
-        elif isinstance(query_config, dict):
-            queries[name] = _parse_query_config(
-                name, query_config, filters, output_selections, displays
-            )
-        else:
-            raise InvalidOutputConfigurationException(f"{name}: {query_config}")
+        queries[name] = _parse_query_config(
+            name, query_config, filters, output_selections, displays
+        )
 
     return queries
 
@@ -185,9 +184,9 @@ def parse_widgets(config: Dict) -> Dict[str, Widget]:
         widgets[name] = Widget(
             name=name,
             title=widget_config["title"],
-            query=query.nrql,
+            query=query.to_nrql(),
             notes=widget_config.get("notes"),
-            visualization=widget_config["visualization"],
+            visualization=query.display.visualization,
         )
 
     return widgets
@@ -286,6 +285,11 @@ def _parse_query_config(query_name, query_config, filters, output_selections, di
             f"Output required for query {query_name}"
         )
 
+    if "display" not in query_config:
+        raise InvalidQueryConfigurationException(
+            f"Display required for query {query_name}"
+        )
+
     filter_name = query_config["filter"]
     query_filter = filters.get(filter_name)
     if not query_filter:
@@ -300,18 +304,16 @@ def _parse_query_config(query_name, query_config, filters, output_selections, di
             f"Invalid output selection {output_name} specified for query {query_name}"
         )
 
-    query_display_nrql = ""
-    display_name = query_config.get("display")
-    if display_name:
-        # Query display is optional
-        display = displays.get(display_name)
-        if not display:
-            raise InvalidQueryConfigurationException(
-                f"Invalid display {display_name} specified for query {query_name}"
-            )
+    display_name = query_config["display"]
+    query_display = displays[display_name]
+    if not query_display:
+        raise InvalidQueryConfigurationException(
+            f"Invalid dispaly {display_name} specified for query {query_name}"
+        )
 
-        query_display_nrql = f" {display.nrql}"
-
-    query_nrql = f"{query_output.nrql} FROM {query_filter.event} {query_filter.nrql}{query_display_nrql}"
-
-    return Query(name=query_name, nrql=query_nrql)
+    return Query(
+        name=query_name,
+        query_filter=query_filter,
+        output=query_output,
+        display=query_display,
+    )

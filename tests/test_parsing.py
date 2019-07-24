@@ -78,13 +78,22 @@ def test_parse_output_selections():
 def test_parse_displays():
     expected = {
         "facet-feed-type": models.QueryDisplay(
-            name="facet-feed-type", nrql="FACET Feed_Type LIMIT 30"
+            name="facet-feed-type",
+            nrql="FACET Feed_Type LIMIT 30",
+            visualization=models.WidgetVisualization.FACET_TABLE,
         ),
         "time-series-by-feed-type": models.QueryDisplay(
-            name="time-series-by-feed-type", nrql="TIMESERIES FACET Feed_Type"
+            name="time-series-by-feed-type",
+            nrql="TIMESERIES FACET Feed_Type",
+            visualization=models.WidgetVisualization.LINE_CHART,
         ),
         "compare-with-one-week-ago": models.QueryDisplay(
-            name="compare-with-one-week-ago", nrql="COMPARE WITH 1 WEEK AGO"
+            name="compare-with-one-week-ago",
+            nrql="COMPARE WITH 1 WEEK AGO",
+            visualization=models.WidgetVisualization.BILLBOARD_COMPARISON,
+        ),
+        "just-a-billboard": models.QueryDisplay(
+            name="just-a-billboard", visualization=models.WidgetVisualization.BILLBOARD
         ),
     }
 
@@ -93,93 +102,46 @@ def test_parse_displays():
 
 def test_parse_queries():
     expected = {
-        "raw-nrql": models.Query(
-            name="raw-nrql", nrql="SELECT COUNT(*) FROM transactions"
-        ),
-        "with-filter-output": models.Query(
-            name="with-filter-output",
-            nrql="SELECT COUNT(*) FROM AppEvents WHERE env = 'Prod'",
-        ),
-        "with-filter-output-display": models.Query(
-            name="with-filter-output-display",
-            nrql="SELECT COUNT(*) FROM AppEvents WHERE env = 'Prod' FACET EventType LIMIT 30 TIMESERIES",
-        ),
+        "my-query": models.Query(
+            name="my-query",
+            query_filter=models.QueryFilter(
+                name="prod-events", event="AppEvents", nrql="WHERE env = 'Prod'"
+            ),
+            output=models.QueryOutputSelection(
+                name="total-count", nrql="SELECT COUNT(*) AS Total"
+            ),
+            display=models.QueryDisplay(
+                name="facet-with-timeseries",
+                nrql="FACET EventType LIMIT 30 TIMESERIES",
+                visualization=models.WidgetVisualization.LINE_CHART,
+            ),
+        )
     }
 
     _assert_can_parse_queries("queries.yml", expected)
 
 
-def test_parse_widgets():
+def test_parse_dashboards():
     expected = {
-        "transaction-count": models.Widget(
-            name="transaction-count",
-            query="SELECT COUNT(*) FROM transactions",
-            title="Transaction Count",
-            visualization="billboard",
-        ),
-        "errors": models.Widget(
-            name="errors",
-            title="Application Errors",
-            query="SELECT COUNT(*) FROM errors",
-            notes="Some notes for the dashboard",
-            visualization="billboard",
-        ),
-    }
-
-    _assert_can_parse_widgets("widgets.yml", expected)
-
-
-def test_parse_widgets():
-    expected = {
-        "dashboard-one": models.Dashboard(
-            name="dashboard-one",
-            title="Dashboard 1",
+        "my-dashboard": models.Dashboard(
+            name="my-dashboard",
+            title="My Dashboard",
             widgets=[
                 models.DashboardWidget(
                     widget=models.Widget(
-                        name="transaction-count",
+                        name="my-widget",
                         query="SELECT COUNT(*) FROM transactions",
                         title="Transaction Count",
-                        visualization="billboard",
+                        visualization=models.WidgetVisualization.BILLBOARD,
+                        notes="Some notes",
                     ),
                     row=1,
                     column=1,
                     width=1,
                     height=1,
-                ),
-                models.DashboardWidget(
-                    widget=models.Widget(
-                        name="errors",
-                        title="Application Errors",
-                        query="SELECT COUNT(*) FROM errors",
-                        notes="Some notes for the dashboard",
-                        visualization="billboard",
-                    ),
-                    row=1,
-                    column=2,
-                    width=2,
-                    height=1,
-                ),
-            ],
-        ),
-        "dashboard-two": models.Dashboard(
-            name="dashboard-two",
-            title="Dashboard 2",
-            widgets=[
-                models.DashboardWidget(
-                    widget=models.Widget(
-                        name="transaction-count",
-                        query="SELECT COUNT(*) FROM transactions",
-                        title="Transaction Count",
-                        visualization="billboard",
-                    ),
-                    row=1,
-                    column=1,
-                    width=3,
-                    height=3,
                 )
             ],
-        ),
+        )
     }
 
     _assert_can_parse_dashboards("dashboards.yml", expected)

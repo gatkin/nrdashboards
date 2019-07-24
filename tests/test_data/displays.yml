@@ -1,5 +1,17 @@
 displays:
-  facet-feed-type: FACET Feed_Type LIMIT 30
-  time-series-by-feed-type: TIMESERIES FACET Feed_Type
-  compare-with-one-week-ago: COMPARE WITH 1 WEEK AGO
+  facet-feed-type:
+    nrql: FACET Feed_Type LIMIT 30
+    visualization: facet_table
+  
+  time-series-by-feed-type:
+    nrql: TIMESERIES FACET Feed_Type
+    visualization: line_chart
+  
+  compare-with-one-week-ago:
+    nrql: COMPARE WITH 1 WEEK AGO
+    visualization: billboard_comparison
+  
+  just-a-billboard:
+    visualization: billboard
+
     

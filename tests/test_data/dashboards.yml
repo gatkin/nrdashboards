@@ -1,44 +1,38 @@
+filters:
+  my-filter:
+    event: transactions
+
+
+output-selections:
+  my-output: COUNT(*)
+
+
+displays:
+  my-display:
+    visualization: billboard 
+
+
 queries:
-  transaction-count: SELECT COUNT(*) FROM transactions
-  errors: SELECT COUNT(*) FROM errors
+  my-query:
+    filter: my-filter
+    output: my-output
+    display: my-display
 
 
 widgets:
-  transaction-count:
-    query: transaction-count
+  my-widget:
+    query: my-query
     title: Transaction Count
-    visualization: billboard
+    notes: Some notes
   
-  errors:
-    query: errors
-    title: Application Errors
-    notes: Some notes for the dashboard
-    visualization: billboard
-
 
 dashboards:
-  dashboard-one:
-    title: Dashboard 1
+  my-dashboard:
+    title: My Dashboard
     widgets:
       - widget:
-        widget: transaction-count
+        widget: my-widget
         row: 1
         column: 1
         width: 1
         height: 1
-      - widget:
-        widget: errors
-        row: 1
-        column: 2
-        width: 2
-        height: 1
-    
-  dashboard-two:
-    title: Dashboard 2
-    widgets:
-      - widget:
-        widget: transaction-count
-        row: 1
-        column: 1
-        width: 3
-        height: 3
