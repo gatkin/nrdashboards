@@ -92,7 +92,7 @@ class NewRelicApiClient:
         """Convert a widget into a dictionary that can be posted to the New Relic API."""
         return {
             "account_id": self._account_id,
-            "visualization": widget.widget.visualization,
+            "visualization": widget.widget.visualization.value,
             "data": [{"nrql": widget.widget.query}],
             "presentation": {
                 "title": widget.widget.title,
