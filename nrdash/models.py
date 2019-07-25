@@ -41,7 +41,7 @@ class WidgetVisualization(Enum):
     GAUGE = "gauge"
     BILLBOARD_COMPARISON = "billboard_comparison"
     FACET_BAR_CHART = "facet_bar_chart"
-    FACET_LINE_CHART = "facet_line_chart"
+    FACETED_LINE_CHART = "faceted_line_chart"
     FACET_PIE_CHART = "facet_pie_chart"
     FACET_TABLE = "facet_table"
     FACET_AREA_CHART = "faceted_area_chart"
