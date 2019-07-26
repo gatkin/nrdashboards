@@ -4,7 +4,7 @@ format:
 install:
 	python -m pip install -U pip
 	python -m pip install -U pipenv
-	python -m pipenv install --dev
+	python -m pipenv sync --dev
 
 lint: type-check
 	python -m black --check nrdash/ tests/
