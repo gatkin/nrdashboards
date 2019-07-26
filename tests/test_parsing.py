@@ -12,7 +12,6 @@ def test_parse_empty_file():
     assert {} == parsing.parse_filters(config)
     assert {} == parsing.parse_output_selections(config, {})
     assert {} == parsing.parse_displays(config)
-    assert {} == parsing.parse_widgets(config)
     assert {} == parsing.parse_dashboards(config)
 
 
@@ -104,6 +103,8 @@ def test_parse_queries():
     expected = {
         "my-query": models.Query(
             name="my-query",
+            title="My Query",
+            notes="Notes about my query",
             query_filter=models.QueryFilter(
                 name="prod-events", event="AppEvents", nrql="WHERE env = 'Prod'"
             ),
@@ -127,14 +128,10 @@ def test_parse_dashboards():
             name="my-dashboard",
             title="My Dashboard",
             widgets=[
-                models.DashboardWidget(
-                    widget=models.Widget(
-                        name="my-widget",
-                        query="SELECT COUNT(*) FROM transactions",
-                        title="Transaction Count",
-                        visualization=models.WidgetVisualization.BILLBOARD,
-                        notes="Some notes",
-                    ),
+                models.Widget(
+                    title="Transaction Count",
+                    query="SELECT COUNT(*) FROM transactions",
+                    visualization=models.WidgetVisualization.BILLBOARD,
                     row=1,
                     column=1,
                     width=1,

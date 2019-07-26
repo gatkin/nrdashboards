@@ -17,21 +17,15 @@ queries:
     filter: my-filter
     output: my-output
     display: my-display
-
-
-widgets:
-  my-widget:
-    query: my-query
     title: Transaction Count
-    notes: Some notes
-  
+
 
 dashboards:
   my-dashboard:
     title: My Dashboard
     widgets:
       - widget:
-        widget: my-widget
+        query: my-query
         row: 1
         column: 1
         width: 1

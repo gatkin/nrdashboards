@@ -6,7 +6,7 @@ import yaml
 
 from .models import (
     Dashboard,
-    DashboardWidget,
+    Widget,
     InvalidExtendingFilterException,
     InvalidOutputConfigurationException,
     InvalidQueryConfigurationException,
@@ -15,7 +15,6 @@ from .models import (
     QueryDisplay,
     QueryFilter,
     QueryOutputSelection,
-    Widget,
     WidgetVisualization,
 )
 
@@ -35,24 +34,16 @@ def parse_dashboards(config: Dict) -> Dict[str, Dashboard]:
         return {}
 
     dashboard_configs = config["dashboards"]
-    widgets = parse_widgets(config)
+    queries = parse_queries(config)
 
     dashboards = {}
     for name, dashboard_config in dashboard_configs.items():
-        dashboard_widgets = []
+        widgets = []
         for widget_config in dashboard_config["widgets"]:
-            dashboard_widgets.append(
-                DashboardWidget(
-                    widget=widgets[widget_config["widget"]],
-                    row=widget_config["row"],
-                    column=widget_config["column"],
-                    width=widget_config["width"],
-                    height=widget_config["height"],
-                )
-            )
+            widgets.append(_parse_widget(widget_config, name, queries))
 
         dashboards[name] = Dashboard(
-            name=name, title=dashboard_config["title"], widgets=dashboard_widgets
+            name=name, title=dashboard_config["title"], widgets=widgets
         )
 
     return dashboards
@@ -164,34 +155,6 @@ def parse_queries(config: Dict) -> Dict[str, Query]:
     return queries
 
 
-def parse_widgets(config: Dict) -> Dict[str, Widget]:
-    """Parse dashboard widgets from configuration."""
-    if "widgets" not in config:
-        return {}
-
-    widget_configs = config["widgets"]
-    queries = parse_queries(config)
-
-    widgets = {}
-    for name, widget_config in widget_configs.items():
-        query_name = widget_config["query"]
-        query = queries.get(query_name)
-        if not query:
-            raise InvalidWidgetConfigurationException(
-                f"Invalid query {query_name} specified for widget {name}"
-            )
-
-        widgets[name] = Widget(
-            name=name,
-            title=widget_config["title"],
-            query=query.to_nrql(),
-            notes=widget_config.get("notes"),
-            visualization=query.display.visualization,
-        )
-
-    return widgets
-
-
 def _build_extended_filters(base_filters, extending_filters):
     """Convert extended filters into base filters."""
     filters_to_resolve = len(extending_filters)
@@ -251,6 +214,18 @@ def _create_filtered_output_selection_nrql(output_function, output_config, filte
     return f"{output_function}({function}, {condition_nrql}){label_nrql}"
 
 
+def _find_query_component(query_config, component_type, component_dict, query_name):
+    """Find query component."""
+    component_name = query_config[component_type]
+    component = component_dict.get(component_name)
+    if not component:
+        raise InvalidQueryConfigurationException(
+            f"Invalid {component_type}, {component_name}, specified for query {query_name}"
+        )
+
+    return component
+
+
 def _parse_output_selection_nrql_component(output_config, filters):
     """Parse an output selection configuration dictionary."""
     if isinstance(output_config, str):
@@ -275,45 +250,74 @@ def _parse_output_selection_nrql_component(output_config, filters):
 
 def _parse_query_config(query_name, query_config, filters, output_selections, displays):
     """Parse a query configuration."""
-    if "filter" not in query_config:
-        raise InvalidQueryConfigurationException(
-            f"Filter required for query {query_name}"
-        )
+    required_fields = ["filter", "output", "display", "title"]
+    for field in required_fields:
+        _validate_required_query_field(field, query_config, query_name)
 
-    if "output" not in query_config:
-        raise InvalidQueryConfigurationException(
-            f"Output required for query {query_name}"
-        )
-
-    if "display" not in query_config:
-        raise InvalidQueryConfigurationException(
-            f"Display required for query {query_name}"
-        )
-
-    filter_name = query_config["filter"]
-    query_filter = filters.get(filter_name)
-    if not query_filter:
-        raise InvalidQueryConfigurationException(
-            f"Invalid filter {filter_name} specified for query {query_name}"
-        )
-
-    output_name = query_config["output"]
-    query_output = output_selections.get(output_name)
-    if not query_output:
-        raise InvalidQueryConfigurationException(
-            f"Invalid output selection {output_name} specified for query {query_name}"
-        )
-
-    display_name = query_config["display"]
-    query_display = displays[display_name]
-    if not query_display:
-        raise InvalidQueryConfigurationException(
-            f"Invalid dispaly {display_name} specified for query {query_name}"
-        )
+    query_filter = _find_query_component(query_config, "filter", filters, query_name)
+    output = _find_query_component(
+        query_config, "output", output_selections, query_name
+    )
+    display = _find_query_component(query_config, "display", displays, query_name)
 
     return Query(
         name=query_name,
         query_filter=query_filter,
-        output=query_output,
-        display=query_display,
+        output=output,
+        display=display,
+        title=query_config["title"],
+        notes=query_config.get("notes"),
+    )
+
+
+def _parse_widget(widget_config, dashboard_name, queries):
+    """Parse dashboard widgets from configuration."""
+    required_fields = ["query", "row", "column", "width", "height"]
+    for field in required_fields:
+        _validate_required_widget_field(field, widget_config, dashboard_name)
+
+    query_name = widget_config["query"]
+    query = queries.get(query_name)
+    if not query:
+        raise InvalidWidgetConfigurationException(
+            f"Invalid query, {query_name}, specified for widget on dashboard {dashboard_name}"
+        )
+
+    widget = Widget(
+        title=query.title,
+        query=query.to_nrql(),
+        notes=query.notes,
+        visualization=query.display.visualization,
+        row=widget_config["row"],
+        column=widget_config["column"],
+        width=widget_config["width"],
+        height=widget_config["height"],
+    )
+
+    return widget
+
+
+def _validate_required_field(exception, config_type, field_name, config, config_name):
+    """Validate required field is present."""
+    if field_name not in config:
+        raise exception(
+            f"Required field {field_name} required for {config_type} {config_name}"
+        )
+
+
+def _validate_required_query_field(field_name, config, query_name):
+    """Validate required query field is present."""
+    _validate_required_field(
+        InvalidQueryConfigurationException, "query", field_name, config, query_name
+    )
+
+
+def _validate_required_widget_field(field_name, config, dashboard_name):
+    """Validate required widget field is present."""
+    _validate_required_field(
+        InvalidWidgetConfigurationException,
+        "widget",
+        field_name,
+        config,
+        dashboard_name,
     )

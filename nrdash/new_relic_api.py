@@ -3,7 +3,7 @@ from typing import Dict, Optional
 
 import requests
 
-from .models import Dashboard, DashboardWidget, NewRelicApiException
+from .models import Dashboard, Widget, NewRelicApiException
 
 
 _BASE_URL = "https://api.newrelic.com/v2/"
@@ -88,16 +88,13 @@ class NewRelicApiClient:
                 f"Failed creating dashboard {dashboard.name} with status = {response.status_code}, response = {response.content}"
             )
 
-    def _widget_to_dict(self, widget: DashboardWidget) -> Dict:
+    def _widget_to_dict(self, widget: Widget) -> Dict:
         """Convert a widget into a dictionary that can be posted to the New Relic API."""
         return {
             "account_id": self._account_id,
-            "visualization": widget.widget.visualization.value,
-            "data": [{"nrql": widget.widget.query}],
-            "presentation": {
-                "title": widget.widget.title,
-                "notes": widget.widget.notes,
-            },
+            "visualization": widget.visualization.value,
+            "data": [{"nrql": widget.query}],
+            "presentation": {"title": widget.title, "notes": widget.notes},
             "layout": {
                 "width": widget.width,
                 "height": widget.height,

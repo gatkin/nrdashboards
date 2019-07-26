@@ -99,9 +99,11 @@ class Query:
     """An NRQL query."""
 
     name: str = attr.ib()
+    title: str = attr.ib()
     query_filter: QueryFilter = attr.ib()
     output: QueryOutputSelection = attr.ib()
     display: QueryDisplay = attr.ib()
+    notes: Optional[str] = attr.ib(default=None)
 
     def to_nrql(self) -> str:
         """Convert a query into a raw NRQL query string."""
@@ -120,24 +122,16 @@ class Query:
 
 @attr.s(frozen=True)
 class Widget:
-    """A widget that can be put on multiple dashboards."""
+    """A widget that is placed on a single dashboard."""
 
-    name: str = attr.ib()
     title: str = attr.ib()
     query: str = attr.ib()
     visualization: WidgetVisualization = attr.ib()
-    notes: Optional[str] = attr.ib(default=None)
-
-
-@attr.s(frozen=True)
-class DashboardWidget:
-    """A widget that is placed on a single dashboard."""
-
-    widget: Widget = attr.ib()
     row: int = attr.ib()
     column: int = attr.ib()
     width: int = attr.ib()
     height: int = attr.ib()
+    notes: Optional[str] = attr.ib(default=None)
 
 
 @attr.s(frozen=True)
@@ -146,4 +140,4 @@ class Dashboard:
 
     name: str = attr.ib()
     title: str = attr.ib()
-    widgets: List[DashboardWidget] = attr.ib()
+    widgets: List[Widget] = attr.ib()

@@ -20,3 +20,5 @@ queries:
     filter: prod-events
     output: total-count
     display: facet-with-timeseries
+    title: My Query
+    notes: Notes about my query
