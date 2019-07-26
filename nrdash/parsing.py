@@ -301,7 +301,7 @@ def _validate_required_field(exception, config_type, field_name, config, config_
     """Validate required field is present."""
     if field_name not in config:
         raise exception(
-            f"Required field {field_name} required for {config_type} {config_name}"
+            f"Field {field_name} is required for {config_type} {config_name}"
         )
 
 
