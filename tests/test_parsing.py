@@ -9,43 +9,36 @@ from nrdash import models, parsing
 def test_parse_empty_file():
     config = _load_test_file("empty.yml")
 
-    assert {} == parsing.parse_filters(config)
+    assert {} == parsing.parse_conditions(config)
     assert {} == parsing.parse_output_selections(config, {})
     assert {} == parsing.parse_displays(config)
     assert {} == parsing.parse_dashboards(config)
 
 
-def test_parse_filters():
+def test_parse_conditions():
     expected = {
-        "base-filter": models.QueryFilter(
-            name="base-filter", event="MyEvent", nrql="appName = 'MyApp'"
+        "base-condition": models.QueryCondition(
+            name="base-condition", nrql="appName = 'MyApp'"
         ),
-        "first-extended-filter": models.QueryFilter(
-            name="first-extended-filter",
-            event="MyEvent",
+        "first-extended-condition": models.QueryCondition(
+            name="first-extended-condition",
             nrql="(appName = 'MyApp') AND (server = 'prod1')",
         ),
-        "second-extended-filter": models.QueryFilter(
-            name="second-extended-filter",
-            event="MyEvent",
+        "second-extended-condition": models.QueryCondition(
+            name="second-extended-condition",
             nrql="((appName = 'MyApp') AND (server = 'prod1')) AND (environment != 'test')",
         ),
-        "third-extended-filter": models.QueryFilter(
-            name="third-extended-filter",
-            event="MyEvent",
+        "third-extended-condition": models.QueryCondition(
+            name="third-extended-condition",
             nrql="(((appName = 'MyApp') AND (server = 'prod1')) AND (environment != 'test')) OR (environment = 'qa')",
         ),
-        "event-only-filter": models.QueryFilter(
-            name="event-only-filter", event="MyEvent", nrql=None
-        ),
-        "multiple-conditions-filter": models.QueryFilter(
-            name="multiple-conditions-filter",
-            event="MyEvent",
-            nrql="(server = 'test1') AND (status = 'error' OR status = 'failed') AND (environment = 'test')",
+        "multiple-conditions-condition": models.QueryCondition(
+            name="multiple-conditions-condition",
+            nrql="(appName = 'MyApp') AND (server = 'test1') AND (status = 'error' OR status = 'failed') AND (environment = 'test')",
         ),
     }
 
-    _assert_can_parse_filters("filters.yml", expected)
+    _assert_can_parse_conditions("conditions.yml", expected)
 
 
 def test_parse_output_selections():
@@ -61,8 +54,8 @@ def test_parse_output_selections():
             name="latest-success-dict",
             nrql="SELECT FILTER(LATEST(timestamp), WHERE status = 'Success')",
         ),
-        "referenced-filter": models.QueryOutputSelection(
-            name="referenced-filter",
+        "referenced-condition": models.QueryOutputSelection(
+            name="referenced-condition",
             nrql="SELECT FILTER(LATEST(timestamp), WHERE env = 'prod')",
         ),
         "mixed": models.QueryOutputSelection(
@@ -105,9 +98,8 @@ def test_parse_queries():
             name="my-query",
             title="My Query",
             notes="Notes about my query",
-            query_filter=models.QueryFilter(
-                name="prod-events", event="AppEvents", nrql="(env = 'Prod')"
-            ),
+            event="MyEvent",
+            condition=models.QueryCondition(name="prod-events", nrql="env = 'Prod'"),
             output=models.QueryOutputSelection(
                 name="total-count", nrql="SELECT COUNT(*) AS Total"
             ),
@@ -130,7 +122,7 @@ def test_parse_dashboards():
             widgets=[
                 models.Widget(
                     title="Transaction Count",
-                    query="SELECT COUNT(*) FROM transactions",
+                    query="SELECT COUNT(*) FROM transactions WHERE env = 'Prod'",
                     visualization=models.WidgetVisualization.BILLBOARD,
                     row=1,
                     column=1,
@@ -142,12 +134,6 @@ def test_parse_dashboards():
     }
 
     _assert_can_parse_dashboards("dashboards.yml", expected)
-
-
-def test_raises_exception_for_missing_extended_query():
-    with pytest.raises(models.InvalidExtendingFilterException):
-        config = _load_test_file("missing_extended_filter.yml")
-        parsing.parse_filters(config)
 
 
 def _assert_can_parse_dashboards(file_name, expected):
@@ -162,16 +148,16 @@ def _assert_can_parse_displays(file_name, expected):
     assert expected == actual
 
 
-def _assert_can_parse_filters(file_name, expected):
+def _assert_can_parse_conditions(file_name, expected):
     config = _load_test_file(file_name)
-    actual = parsing.parse_filters(config)
+    actual = parsing.parse_conditions(config)
     assert expected == actual
 
 
 def _assert_can_parse_output_selections(file_name, expected):
     config = _load_test_file(file_name)
-    filters = parsing.parse_filters(config)
-    actual = parsing.parse_output_selections(config, filters)
+    conditions = parsing.parse_conditions(config)
+    actual = parsing.parse_output_selections(config, conditions)
     assert expected == actual
 
 

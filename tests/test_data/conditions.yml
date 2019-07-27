@@ -1,0 +1,24 @@
+conditions:
+  base-condition: appName = 'MyApp'
+  
+  first-extended-condition:
+    and:
+      - condition: base-condition
+      - server = 'prod1'
+  
+  second-extended-condition:
+    and:
+      - condition: first-extended-condition
+      - environment != 'test' 
+  
+  third-extended-condition:
+    or:
+      - condition: second-extended-condition
+      - environment = 'qa'
+
+  multiple-conditions-condition:
+    and:
+      - server = 'test1'
+      - condition: base-condition
+      - status = 'error' OR status = 'failed'
+      - environment = 'test'

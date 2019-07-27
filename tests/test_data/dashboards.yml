@@ -1,6 +1,5 @@
-filters:
-  my-filter:
-    event: transactions
+conditions:
+  my-filter: env = 'Prod'
 
 
 output-selections:
@@ -14,7 +13,8 @@ displays:
 
 queries:
   my-query:
-    filter: my-filter
+    event: transactions
+    condition: my-filter
     output: my-output
     display: my-display
     title: Transaction Count

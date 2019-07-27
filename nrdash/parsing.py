@@ -8,43 +8,61 @@ import yaml
 from .models import (
     Dashboard,
     Widget,
-    InvalidExtendingFilterException,
+    InvalidExtendingConditionException,
     InvalidOutputConfigurationException,
     InvalidQueryConfigurationException,
     InvalidWidgetConfigurationException,
     Query,
     QueryDisplay,
-    QueryFilter,
+    QueryCondition,
     QueryOutputSelection,
     WidgetVisualization,
 )
 
 
-class _ExtendingFilterOperator(Enum):
-    """Operator used to extend another filter."""
+class _ExtendingConditionOperator(Enum):
+    """Operator used to extend another condition."""
 
     AND = "AND"
     OR = "OR"
 
 
 @attr.s(frozen=True)
-class _ExtendingQueryFilter:
-    """A query filter that extends another query filter."""
+class _ExtendingQueryCondition:
+    """A query condition that extends another query condition."""
 
     name: str = attr.ib()
-    operator: _ExtendingFilterOperator = attr.ib()
-    extended_filters: Iterable[str] = attr.ib()
+    operator: _ExtendingConditionOperator = attr.ib()
+    extended_conditions: Iterable[str] = attr.ib()
     nrql_conditions: Iterable[str] = attr.ib()
+
+
+def parse_conditions(config: Dict) -> Dict[str, QueryCondition]:
+    """Parse conditions from configuration."""
+    condition_configs = config.get("conditions")
+    if not condition_configs:
+        return {}
+
+    base_conditions = {}
+    extending_conditions = {}
+    for name, condition_config in condition_configs.items():
+        if isinstance(condition_config, str):
+            base_conditions[name] = QueryCondition(name=name, nrql=condition_config)
+        else:
+            extending_conditions[name] = _parse_extending_condition(
+                name, condition_config
+            )
+
+    return _resolve_all_extending_conditions(base_conditions, extending_conditions)
 
 
 def parse_dashboards(config: Dict) -> Dict[str, Dashboard]:
     """Parse dashboards from configuration."""
-    if "dashboards" not in config:
+    dashboard_configs = config.get("dashboards")
+    if not dashboard_configs:
         return {}
 
-    dashboard_configs = config["dashboards"]
     queries = parse_queries(config)
-
     dashboards = {}
     for name, dashboard_config in dashboard_configs.items():
         widgets = []
@@ -60,10 +78,10 @@ def parse_dashboards(config: Dict) -> Dict[str, Dashboard]:
 
 def parse_displays(config: Dict) -> Dict[str, QueryDisplay]:
     """Parse display options from configuration."""
-    if "displays" not in config:
+    display_configs = config.get("displays")
+    if not display_configs:
         return {}
 
-    display_configs = config["displays"]
     displays = {}
     for name, display_config in display_configs.items():
         displays[name] = QueryDisplay(
@@ -83,34 +101,13 @@ def parse_file(file_path: str) -> Dict[str, Dashboard]:
     return parse_dashboards(config)
 
 
-def parse_filters(config: Dict) -> Dict[str, QueryFilter]:
-    """Parse filters from configuration."""
-    if "filters" not in config:
-        return {}
-
-    filter_configs = config["filters"]
-
-    base_filters = {}
-    extending_filters = {}
-    for name, filter_config in filter_configs.items():
-        if "event" in filter_config:
-            base_filters[name] = QueryFilter(
-                name=name, event=filter_config["event"], nrql=filter_config.get("where")
-            )
-        else:
-            extending_filters[name] = _parse_extending_filter(name, filter_config)
-
-    return _resolve_all_extending_filters(base_filters, extending_filters)
-
-
 def parse_output_selections(
-    config: Dict, filters: Dict[str, QueryFilter]
+    config: Dict, conditions: Dict[str, QueryCondition]
 ) -> Dict[str, QueryOutputSelection]:
     """Parse output selections from configuration."""
-    if "output-selections" not in config:
+    output_configs = config.get("output-selections")
+    if not output_configs:
         return {}
-
-    output_configs = config["output-selections"]
 
     output_selections = {}
     for name, output_config in output_configs.items():
@@ -121,7 +118,7 @@ def parse_output_selections(
             )
         elif isinstance(output_config, list):
             nrql_components = [
-                _parse_output_selection_nrql_component(component_config, filters)
+                _parse_output_selection_nrql_component(component_config, conditions)
                 for component_config in output_config
             ]
 
@@ -131,7 +128,7 @@ def parse_output_selections(
         elif isinstance(output_config, dict):
             output_selections[name] = QueryOutputSelection(
                 name=name,
-                nrql=f"SELECT {_parse_output_selection_nrql_component(output_config, filters)}",
+                nrql=f"SELECT {_parse_output_selection_nrql_component(output_config, conditions)}",
             )
         else:
             raise InvalidOutputConfigurationException(output_config)
@@ -145,28 +142,29 @@ def parse_queries(config: Dict) -> Dict[str, Query]:
         return {}
 
     query_configs = config["queries"]
-    filters = parse_filters(config)
-    output_selections = parse_output_selections(config, filters)
+    conditions = parse_conditions(config)
+    output_selections = parse_output_selections(config, conditions)
     displays = parse_displays(config)
 
     queries = {}
     for name, query_config in query_configs.items():
         queries[name] = _parse_query_config(
-            name, query_config, filters, output_selections, displays
+            name, query_config, conditions, output_selections, displays
         )
 
     return queries
 
 
-def _can_filter_be_resolved(base_filters, extending_filter):
-    """Determine whether an extending filter can be resolved."""
+def _can_condition_be_resolved(base_conditions, extending_condition):
+    """Determine whether an extending condition can be resolved."""
     return all(
-        filter_name in base_filters for filter_name in extending_filter.extended_filters
+        condition_name in base_conditions
+        for condition_name in extending_condition.extended_conditions
     )
 
 
-def _create_filtered_output_selection_nrql(output_function, output_config, filters):
-    """Create a filtered output selection."""
+def _create_grouped_output_selection_nrql(output_function, output_config, conditions):
+    """Create a grouped output selection."""
     function = output_config["function"]
     label = output_config.get("label")
     if label:
@@ -174,11 +172,11 @@ def _create_filtered_output_selection_nrql(output_function, output_config, filte
     else:
         label_nrql = ""
 
-    function_filter = output_config["condition"]
-    if function_filter in filters:
-        condition_nrql = filters[function_filter].nrql
+    condition = output_config["condition"]
+    if condition in conditions:
+        condition_nrql = conditions[condition].nrql
     else:
-        condition_nrql = function_filter
+        condition_nrql = condition
 
     return f"{output_function}({function}, WHERE {condition_nrql}){label_nrql}"
 
@@ -195,45 +193,45 @@ def _find_query_component(query_config, component_type, component_dict, query_na
     return component
 
 
-def _parse_extending_filter(filter_name, filter_config) -> _ExtendingQueryFilter:
-    """Parse an extending filter."""
-    if "and" in filter_config:
-        operator = _ExtendingFilterOperator.AND
-        operand_configs = filter_config["and"]
-    elif "or" in filter_config:
-        operator = _ExtendingFilterOperator.OR
-        operand_configs = filter_config["or"]
+def _parse_extending_condition(condition_name, condition_config):
+    """Parse an extending condition."""
+    if "and" in condition_config:
+        operator = _ExtendingConditionOperator.AND
+        operand_configs = condition_config["and"]
+    elif "or" in condition_config:
+        operator = _ExtendingConditionOperator.OR
+        operand_configs = condition_config["or"]
     else:
-        raise InvalidExtendingFilterException(
-            f"Invalid operator for extending filter {filter_name}: {filter_config}"
+        raise InvalidExtendingConditionException(
+            f"Invalid operator for extending condition {condition_name}: {condition_config}"
         )
 
-    extended_filters = []
+    extended_conditions = []
     nrql_conditions = []
     for operand_config in operand_configs:
         if isinstance(operand_config, str):
             nrql_conditions.append(operand_config)
-        elif isinstance(operand_config, dict) and "filter" in operand_config:
-            extended_filters.append(operand_config["filter"])
+        elif isinstance(operand_config, dict) and "condition" in operand_config:
+            extended_conditions.append(operand_config["condition"])
         else:
-            raise InvalidExtendingFilterException(
-                f"Invalid operands for extending filter {filter_name}: {filter_config}"
+            raise InvalidExtendingConditionException(
+                f"Invalid operands for extending condition {condition_name}: {condition_config}"
             )
 
-    if not extended_filters:
-        raise InvalidExtendingFilterException(
-            f"Extending filter {filter_name} does not extend any other filters"
+    if not extended_conditions:
+        raise InvalidExtendingConditionException(
+            f"Extending condition {condition_name} does not extend any other conditions"
         )
 
-    return _ExtendingQueryFilter(
-        name=filter_name,
+    return _ExtendingQueryCondition(
+        name=condition_name,
         operator=operator,
-        extended_filters=extended_filters,
+        extended_conditions=extended_conditions,
         nrql_conditions=nrql_conditions,
     )
 
 
-def _parse_output_selection_nrql_component(output_config, filters):
+def _parse_output_selection_nrql_component(output_config, conditions):
     """Parse an output selection configuration dictionary."""
     if isinstance(output_config, str):
         # Raw NRQL
@@ -243,25 +241,27 @@ def _parse_output_selection_nrql_component(output_config, filters):
         raise InvalidOutputConfigurationException(output_config)
 
     if "filter" in output_config:
-        return _create_filtered_output_selection_nrql(
-            "FILTER", output_config["filter"], filters
+        return _create_grouped_output_selection_nrql(
+            "FILTER", output_config["filter"], conditions
         )
 
     if "percentage" in output_config:
-        return _create_filtered_output_selection_nrql(
-            "PERCENTAGE", output_config["percentage"], filters
+        return _create_grouped_output_selection_nrql(
+            "PERCENTAGE", output_config["percentage"], conditions
         )
 
     raise InvalidOutputConfigurationException(output_config)
 
 
-def _parse_query_config(query_name, query_config, filters, output_selections, displays):
+def _parse_query_config(
+    query_name, query_config, conditions, output_selections, displays
+):
     """Parse a query configuration."""
-    required_fields = ["filter", "output", "display", "title"]
+    required_fields = ["condition", "output", "display", "title", "event"]
     for field in required_fields:
         _validate_required_query_field(field, query_config, query_name)
 
-    query_filter = _find_query_component(query_config, "filter", filters, query_name)
+    condition = _find_query_component(query_config, "condition", conditions, query_name)
     output = _find_query_component(
         query_config, "output", output_selections, query_name
     )
@@ -269,7 +269,8 @@ def _parse_query_config(query_name, query_config, filters, output_selections, di
 
     return Query(
         name=query_name,
-        query_filter=query_filter,
+        event=query_config["event"],
+        condition=condition,
         output=output,
         display=display,
         title=query_config["title"],
@@ -304,60 +305,56 @@ def _parse_widget(widget_config, dashboard_name, queries):
     return widget
 
 
-def _resolve_all_extending_filters(
-    base_filters: Dict[str, QueryFilter],
-    extending_filters: Dict[str, _ExtendingQueryFilter],
-) -> Dict[str, QueryFilter]:
-    """Convert extended filters into base filters."""
-    filters_to_resolve = len(extending_filters)
-    while filters_to_resolve > 0:
-        unresolved_filters = [
-            extending_filter
-            for filter_name, extending_filter in extending_filters.items()
-            if filter_name not in base_filters
+def _resolve_all_extending_conditions(base_conditions, extending_conditions):
+    """Resolve all conditions that extend other conditions."""
+    conditions_to_resolve = len(extending_conditions)
+    while conditions_to_resolve > 0:
+        unresolved_conditions = [
+            extending_condition
+            for condition_name, extending_condition in extending_conditions.items()
+            if condition_name not in base_conditions
         ]
 
-        resolvable_filters = [
-            extending_filter
-            for extending_filter in unresolved_filters
-            if _can_filter_be_resolved(base_filters, extending_filter)
+        resolvable_conditions = [
+            extending_condition
+            for extending_condition in unresolved_conditions
+            if _can_condition_be_resolved(base_conditions, extending_condition)
         ]
 
-        if not resolvable_filters:
+        if not resolvable_conditions:
             unresolved_names = ",".join(
-                (extending_filter.name for extending_filter in unresolved_filters)
+                (
+                    extending_condition.name
+                    for extending_condition in unresolved_conditions
+                )
             )
-            raise InvalidExtendingFilterException(
-                f"Extending filters do not reference valid filters and cannot be resolved: {unresolved_names}"
-            )
-
-        for extending_filter in resolvable_filters:
-            base_filters[extending_filter.name] = _resolve_extended_filter(
-                base_filters, extending_filter
+            raise InvalidExtendingConditionException(
+                f"Extending conditions do not reference valid conditions and cannot be resolved: {unresolved_names}"
             )
 
-        filters_to_resolve -= len(resolvable_filters)
+        for extending_condition in resolvable_conditions:
+            base_conditions[extending_condition.name] = _resolve_extended_condition(
+                base_conditions, extending_condition
+            )
 
-    return base_filters
+        conditions_to_resolve -= len(resolvable_conditions)
+
+    return base_conditions
 
 
-def _resolve_extended_filter(base_filters, extending_filter):
-    """Resolve extended filter."""
-    event = ""
+def _resolve_extended_condition(base_conditions, extending_condition):
+    """Resolve extended condition."""
     nrql_conditions = []
-    for filter_name in extending_filter.extended_filters:
-        extended_filter = base_filters[filter_name]
-        event = extended_filter.event
-        if extended_filter.nrql:
-            nrql_conditions.append(f"({extended_filter.nrql})")
+    for condition_name in extending_condition.extended_conditions:
+        nrql_conditions.append(f"({base_conditions[condition_name].nrql})")
 
-    for condition in extending_filter.nrql_conditions:
+    for condition in extending_condition.nrql_conditions:
         nrql_conditions.append(f"({condition})")
 
-    operator = extending_filter.operator.value
-    filter_nrql = f" {operator} ".join(nrql_conditions)
+    operator = extending_condition.operator.value
+    condition_nrql = f" {operator} ".join(nrql_conditions)
 
-    return QueryFilter(name=extending_filter.name, event=event, nrql=filter_nrql)
+    return QueryCondition(name=extending_condition.name, nrql=condition_nrql)
 
 
 def _validate_required_field(exception, config_type, field_name, config, config_name):

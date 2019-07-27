@@ -9,8 +9,8 @@ class NrDashException(Exception):
     """Base class for all application-specific exceptions."""
 
 
-class InvalidExtendingFilterException(NrDashException):
-    """Invalid extending filter exception."""
+class InvalidExtendingConditionException(NrDashException):
+    """Invalid extending condition exception."""
 
 
 class InvalidOutputConfigurationException(NrDashException):
@@ -69,12 +69,11 @@ class WidgetVisualization(Enum):
 
 
 @attr.s(frozen=True)
-class QueryFilter:
-    """A query filter component."""
+class QueryCondition:
+    """A query condition."""
 
     name: str = attr.ib()
-    event: str = attr.ib()
-    nrql: Optional[str] = attr.ib(default=None)
+    nrql: str = attr.ib(default=None)
 
 
 @attr.s(frozen=True)
@@ -100,7 +99,8 @@ class Query:
 
     name: str = attr.ib()
     title: str = attr.ib()
-    query_filter: QueryFilter = attr.ib()
+    event: str = attr.ib()
+    condition: QueryCondition = attr.ib()
     output: QueryOutputSelection = attr.ib()
     display: QueryDisplay = attr.ib()
     notes: Optional[str] = attr.ib(default=None)
@@ -112,12 +112,7 @@ class Query:
         else:
             display_nrql = ""
 
-        if self.query_filter.nrql:
-            filter_nrql = f" WHERE {self.query_filter.nrql}"
-        else:
-            filter_nrql = ""
-
-        return f"{self.output.nrql} FROM {self.query_filter.event}{filter_nrql}{display_nrql}"
+        return f"{self.output.nrql} FROM {self.event} WHERE {self.condition.nrql}{display_nrql}"
 
 
 @attr.s(frozen=True)

@@ -1,24 +1,26 @@
-filters:
-  prod-events:
-    event: MyEvent
-    where: env = 'prod'
+conditions:
+  prod-events: env = 'prod'
 
 
 output-selections:
   latest-timestamp-raw-nrql: LATEST(timestamp)
+  
   error-percentage-singleton-list:
     - percentage:
         function: COUNT(*)
         condition: status != 'Success'
         label: Error Rate
+  
   latest-success-dict:
     filter:
       function: LATEST(timestamp)
       condition: status = 'Success'
-  referenced-filter:
+  
+  referenced-condition:
     filter:
       function: LATEST(timestamp)
       condition: prod-events
+
   mixed:
     - percentage:
         function: COUNT(*)

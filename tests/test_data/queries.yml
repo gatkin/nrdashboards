@@ -1,12 +1,5 @@
-filters:
-  application-events:
-    event: AppEvents
-  
-  prod-events:
-    and:
-      - filter: application-events
-      - env = 'Prod'
-  
+conditions:
+  prod-events: env = 'Prod'
 
 output-selections:
   total-count: COUNT(*) AS Total
@@ -18,7 +11,8 @@ displays:
 
 queries:
   my-query:
-    filter: prod-events
+    event: MyEvent
+    condition: prod-events
     output: total-count
     display: facet-with-timeseries
     title: My Query
