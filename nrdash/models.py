@@ -74,7 +74,7 @@ class QueryFilter:
 
     name: str = attr.ib()
     event: str = attr.ib()
-    nrql: str = attr.ib()
+    nrql: Optional[str] = attr.ib(default=None)
 
 
 @attr.s(frozen=True)
@@ -113,7 +113,7 @@ class Query:
             display_nrql = ""
 
         if self.query_filter.nrql:
-            filter_nrql = f" {self.query_filter.nrql}"
+            filter_nrql = f" WHERE {self.query_filter.nrql}"
         else:
             filter_nrql = ""
 

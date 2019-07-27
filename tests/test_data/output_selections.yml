@@ -1,7 +1,7 @@
 filters:
   prod-events:
     event: MyEvent
-    nrql: WHERE env = 'prod'
+    where: env = 'prod'
 
 
 output-selections:
@@ -9,12 +9,12 @@ output-selections:
   error-percentage-singleton-list:
     - percentage:
         function: COUNT(*)
-        condition: WHERE status != 'Success'
+        condition: status != 'Success'
         label: Error Rate
   latest-success-dict:
     filter:
       function: LATEST(timestamp)
-      condition: WHERE status = 'Success'
+      condition: status = 'Success'
   referenced-filter:
     filter:
       function: LATEST(timestamp)
@@ -22,10 +22,10 @@ output-selections:
   mixed:
     - percentage:
         function: COUNT(*)
-        condition: WHERE status != 'Success'
+        condition: status != 'Success'
     - LATEST(timestamp) AS `Latest Event`
     - filter:
         function: LATEST(timestamp)
-        condition: WHERE status = 'Success'
+        condition: status = 'Success'
         label: Latest Success
 

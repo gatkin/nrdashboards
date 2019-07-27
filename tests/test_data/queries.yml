@@ -3,9 +3,10 @@ filters:
     event: AppEvents
   
   prod-events:
-    extend:
-      filter: application-events
-      with: WHERE env = 'Prod'
+    and:
+      - filter: application-events
+      - env = 'Prod'
+  
 
 output-selections:
   total-count: COUNT(*) AS Total

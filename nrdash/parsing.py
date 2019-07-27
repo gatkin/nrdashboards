@@ -1,5 +1,6 @@
 """Parses input configuration files."""
-from typing import Dict
+from enum import Enum
+from typing import Dict, Iterable
 
 import attr
 import yaml
@@ -19,13 +20,21 @@ from .models import (
 )
 
 
+class _ExtendingFilterOperator(Enum):
+    """Operator used to extend another filter."""
+
+    AND = "AND"
+    OR = "OR"
+
+
 @attr.s(frozen=True)
 class _ExtendingQueryFilter:
     """A query filter that extends another query filter."""
 
     name: str = attr.ib()
-    extension_nrql: str = attr.ib()
-    extended_filter: str = attr.ib()
+    operator: _ExtendingFilterOperator = attr.ib()
+    extended_filters: Iterable[str] = attr.ib()
+    nrql_conditions: Iterable[str] = attr.ib()
 
 
 def parse_dashboards(config: Dict) -> Dict[str, Dashboard]:
@@ -84,20 +93,14 @@ def parse_filters(config: Dict) -> Dict[str, QueryFilter]:
     base_filters = {}
     extending_filters = {}
     for name, filter_config in filter_configs.items():
-        if "extend" in filter_config:
-            extending_filters[name] = _ExtendingQueryFilter(
-                name=name,
-                extension_nrql=filter_config["extend"]["with"],
-                extended_filter=filter_config["extend"]["filter"],
+        if "event" in filter_config:
+            base_filters[name] = QueryFilter(
+                name=name, event=filter_config["event"], nrql=filter_config.get("where")
             )
         else:
-            base_filters[name] = QueryFilter(
-                name=name,
-                nrql=filter_config.get("nrql", ""),
-                event=filter_config["event"],
-            )
+            extending_filters[name] = _parse_extending_filter(name, filter_config)
 
-    return _build_extended_filters(base_filters, extending_filters)
+    return _resolve_all_extending_filters(base_filters, extending_filters)
 
 
 def parse_output_selections(
@@ -155,45 +158,11 @@ def parse_queries(config: Dict) -> Dict[str, Query]:
     return queries
 
 
-def _build_extended_filters(base_filters, extending_filters):
-    """Convert extended filters into base filters."""
-    filters_to_resolve = len(extending_filters)
-    while filters_to_resolve > 0:
-        unresolved_filters = [
-            extending_filter
-            for filter_name, extending_filter in extending_filters.items()
-            if filter_name not in base_filters
-        ]
-
-        resolvable_filters = [
-            extending_filter
-            for extending_filter in unresolved_filters
-            if extending_filter.extended_filter in base_filters
-        ]
-
-        if not resolvable_filters:
-            unresolved_names = ",".join(
-                (extending_filter.name for extending_filter in unresolved_filters)
-            )
-            raise InvalidExtendingFilterException(
-                f"Extending filters do not reference valid filters and cannot be resolved: {unresolved_names}"
-            )
-
-        for extending_filter in resolvable_filters:
-            extended_base_filter = base_filters[extending_filter.extended_filter]
-            full_nrql = (
-                f"{extended_base_filter.nrql} {extending_filter.extension_nrql}".strip()
-            )
-
-            base_filters[extending_filter.name] = QueryFilter(
-                name=extending_filter.name,
-                nrql=full_nrql,
-                event=extended_base_filter.event,
-            )
-
-        filters_to_resolve -= len(resolvable_filters)
-
-    return base_filters
+def _can_filter_be_resolved(base_filters, extending_filter):
+    """Determine whether an extending filter can be resolved."""
+    return all(
+        filter_name in base_filters for filter_name in extending_filter.extended_filters
+    )
 
 
 def _create_filtered_output_selection_nrql(output_function, output_config, filters):
@@ -211,7 +180,7 @@ def _create_filtered_output_selection_nrql(output_function, output_config, filte
     else:
         condition_nrql = function_filter
 
-    return f"{output_function}({function}, {condition_nrql}){label_nrql}"
+    return f"{output_function}({function}, WHERE {condition_nrql}){label_nrql}"
 
 
 def _find_query_component(query_config, component_type, component_dict, query_name):
@@ -224,6 +193,44 @@ def _find_query_component(query_config, component_type, component_dict, query_na
         )
 
     return component
+
+
+def _parse_extending_filter(filter_name, filter_config) -> _ExtendingQueryFilter:
+    """Parse an extending filter."""
+    if "and" in filter_config:
+        operator = _ExtendingFilterOperator.AND
+        operand_configs = filter_config["and"]
+    elif "or" in filter_config:
+        operator = _ExtendingFilterOperator.OR
+        operand_configs = filter_config["or"]
+    else:
+        raise InvalidExtendingFilterException(
+            f"Invalid operator for extending filter {filter_name}: {filter_config}"
+        )
+
+    extended_filters = []
+    nrql_conditions = []
+    for operand_config in operand_configs:
+        if isinstance(operand_config, str):
+            nrql_conditions.append(operand_config)
+        elif isinstance(operand_config, dict) and "filter" in operand_config:
+            extended_filters.append(operand_config["filter"])
+        else:
+            raise InvalidExtendingFilterException(
+                f"Invalid operands for extending filter {filter_name}: {filter_config}"
+            )
+
+    if not extended_filters:
+        raise InvalidExtendingFilterException(
+            f"Extending filter {filter_name} does not extend any other filters"
+        )
+
+    return _ExtendingQueryFilter(
+        name=filter_name,
+        operator=operator,
+        extended_filters=extended_filters,
+        nrql_conditions=nrql_conditions,
+    )
 
 
 def _parse_output_selection_nrql_component(output_config, filters):
@@ -295,6 +302,62 @@ def _parse_widget(widget_config, dashboard_name, queries):
     )
 
     return widget
+
+
+def _resolve_all_extending_filters(
+    base_filters: Dict[str, QueryFilter],
+    extending_filters: Dict[str, _ExtendingQueryFilter],
+) -> Dict[str, QueryFilter]:
+    """Convert extended filters into base filters."""
+    filters_to_resolve = len(extending_filters)
+    while filters_to_resolve > 0:
+        unresolved_filters = [
+            extending_filter
+            for filter_name, extending_filter in extending_filters.items()
+            if filter_name not in base_filters
+        ]
+
+        resolvable_filters = [
+            extending_filter
+            for extending_filter in unresolved_filters
+            if _can_filter_be_resolved(base_filters, extending_filter)
+        ]
+
+        if not resolvable_filters:
+            unresolved_names = ",".join(
+                (extending_filter.name for extending_filter in unresolved_filters)
+            )
+            raise InvalidExtendingFilterException(
+                f"Extending filters do not reference valid filters and cannot be resolved: {unresolved_names}"
+            )
+
+        for extending_filter in resolvable_filters:
+            base_filters[extending_filter.name] = _resolve_extended_filter(
+                base_filters, extending_filter
+            )
+
+        filters_to_resolve -= len(resolvable_filters)
+
+    return base_filters
+
+
+def _resolve_extended_filter(base_filters, extending_filter):
+    """Resolve extended filter."""
+    event = ""
+    nrql_conditions = []
+    for filter_name in extending_filter.extended_filters:
+        extended_filter = base_filters[filter_name]
+        event = extended_filter.event
+        if extended_filter.nrql:
+            nrql_conditions.append(f"({extended_filter.nrql})")
+
+    for condition in extending_filter.nrql_conditions:
+        nrql_conditions.append(f"({condition})")
+
+    operator = extending_filter.operator.value
+    filter_nrql = f" {operator} ".join(nrql_conditions)
+
+    return QueryFilter(name=extending_filter.name, event=event, nrql=filter_nrql)
 
 
 def _validate_required_field(exception, config_type, field_name, config, config_name):

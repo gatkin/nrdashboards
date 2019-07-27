@@ -17,31 +17,31 @@ def test_parse_empty_file():
 
 def test_parse_filters():
     expected = {
-        "simple_base_filter": models.QueryFilter(
-            name="simple_base_filter", event="My_Event", nrql="WHERE appName = 'MyApp'"
+        "base-filter": models.QueryFilter(
+            name="base-filter", event="MyEvent", nrql="appName = 'MyApp'"
         ),
-        "first_extended_filter": models.QueryFilter(
-            name="first_extended_filter",
-            event="My_Event",
-            nrql="WHERE appName = 'MyApp' AND server = 'prod1'",
+        "first-extended-filter": models.QueryFilter(
+            name="first-extended-filter",
+            event="MyEvent",
+            nrql="(appName = 'MyApp') AND (server = 'prod1')",
         ),
-        "second_extended_filter": models.QueryFilter(
-            name="second_extended_filter",
-            event="My_Event",
-            nrql="WHERE appName = 'MyApp' AND server = 'prod1' AND environment != 'test'",
+        "second-extended-filter": models.QueryFilter(
+            name="second-extended-filter",
+            event="MyEvent",
+            nrql="((appName = 'MyApp') AND (server = 'prod1')) AND (environment != 'test')",
         ),
-        "third_extended_filter": models.QueryFilter(
-            name="third_extended_filter",
-            event="My_Event",
-            nrql="WHERE appName = 'MyApp' AND server = 'prod1' AND environment != 'test' AND environment != 'qa'",
+        "third-extended-filter": models.QueryFilter(
+            name="third-extended-filter",
+            event="MyEvent",
+            nrql="(((appName = 'MyApp') AND (server = 'prod1')) AND (environment != 'test')) OR (environment = 'qa')",
         ),
-        "event_only_filter": models.QueryFilter(
-            name="event_only_filter", event="My_Event", nrql=""
+        "event-only-filter": models.QueryFilter(
+            name="event-only-filter", event="MyEvent", nrql=None
         ),
-        "extend_event_only_filter": models.QueryFilter(
-            name="extend_event_only_filter",
-            event="My_Event",
-            nrql="WHERE server = 'prod2'",
+        "multiple-conditions-filter": models.QueryFilter(
+            name="multiple-conditions-filter",
+            event="MyEvent",
+            nrql="(server = 'test1') AND (status = 'error' OR status = 'failed') AND (environment = 'test')",
         ),
     }
 
@@ -106,7 +106,7 @@ def test_parse_queries():
             title="My Query",
             notes="Notes about my query",
             query_filter=models.QueryFilter(
-                name="prod-events", event="AppEvents", nrql="WHERE env = 'Prod'"
+                name="prod-events", event="AppEvents", nrql="(env = 'Prod')"
             ),
             output=models.QueryOutputSelection(
                 name="total-count", nrql="SELECT COUNT(*) AS Total"
