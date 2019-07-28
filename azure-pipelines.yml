@@ -16,3 +16,9 @@ jobs:
       - bash: 'python -m pipenv run make per-commit'
         displayName: Build
         workingDirectory: '$(System.DefaultWorkingDirectory)'
+      
+      - task: PublishTestResults@2
+        displayName: Publish Test Results
+        inputs:
+          testResultsFiles: 'test_results/test_results.xml'
+        condition: succeededOrFailed()

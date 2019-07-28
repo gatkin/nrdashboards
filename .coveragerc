@@ -1,0 +1,6 @@
+[run]
+branch = True
+include = nrdash/*
+
+[report]
+omit = tests/*

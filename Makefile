@@ -1,3 +1,8 @@
+coverage:
+	python -m coverage run tests/run_tests.py --junit-xml=test_results/test_results.xml
+	python -m coverage report
+	python -m coverage html
+
 format:
 	python -m black nrdash/ tests/
 
@@ -12,7 +17,7 @@ lint: type-check
 	python -m pydocstyle nrdash/
 	python -m pylint --rcfile nrdash/.pylintrc nrdash/
 
-per-commit: lint test
+per-commit: lint coverage
 
 test:
 	python -m pytest -vv

@@ -17,6 +17,7 @@ pylint = "*"
 pytest = "*"
 mypy = "==0.720"
 black = "==19.3b0"
+coverage = "*"
 
 [requires]
 python_version = "3.7"
