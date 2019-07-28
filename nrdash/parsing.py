@@ -257,11 +257,17 @@ def _parse_query_config(
     query_name, query_config, conditions, output_selections, displays
 ):
     """Parse a query configuration."""
-    required_fields = ["condition", "output", "display", "title", "event"]
+    required_fields = ["output", "display", "title", "event"]
     for field in required_fields:
         _validate_required_query_field(field, query_config, query_name)
 
-    condition = _find_query_component(query_config, "condition", conditions, query_name)
+    if "condition" in query_config:
+        condition = _find_query_component(
+            query_config, "condition", conditions, query_name
+        )
+    else:
+        condition = None
+
     output = _find_query_component(
         query_config, "output", output_selections, query_name
     )

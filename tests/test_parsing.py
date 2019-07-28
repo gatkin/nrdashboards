@@ -108,7 +108,20 @@ def test_parse_queries():
                 nrql="FACET EventType LIMIT 30 TIMESERIES",
                 visualization=models.WidgetVisualization.LINE_CHART,
             ),
-        )
+        ),
+        "no-condition-query": models.Query(
+            name="no-condition-query",
+            title="My Query without a Condition",
+            event="MyEvent",
+            output=models.QueryOutputSelection(
+                name="total-count", nrql="SELECT COUNT(*) AS Total"
+            ),
+            display=models.QueryDisplay(
+                name="facet-with-timeseries",
+                nrql="FACET EventType LIMIT 30 TIMESERIES",
+                visualization=models.WidgetVisualization.LINE_CHART,
+            ),
+        ),
     }
 
     _assert_can_parse_queries("queries.yml", expected)

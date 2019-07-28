@@ -100,9 +100,9 @@ class Query:
     name: str = attr.ib()
     title: str = attr.ib()
     event: str = attr.ib()
-    condition: QueryCondition = attr.ib()
     output: QueryOutputSelection = attr.ib()
     display: QueryDisplay = attr.ib()
+    condition: Optional[QueryCondition] = attr.ib(default=None)
     notes: Optional[str] = attr.ib(default=None)
 
     def to_nrql(self) -> str:
@@ -112,7 +112,12 @@ class Query:
         else:
             display_nrql = ""
 
-        return f"{self.output.nrql} FROM {self.event} WHERE {self.condition.nrql}{display_nrql}"
+        if self.condition:
+            condition_nrql = f" WHERE {self.condition.nrql}"
+        else:
+            condition_nrql = ""
+
+        return f"{self.output.nrql} FROM {self.event}{condition_nrql}{display_nrql}"
 
 
 @attr.s(frozen=True)

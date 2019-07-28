@@ -17,3 +17,9 @@ queries:
     display: facet-with-timeseries
     title: My Query
     notes: Notes about my query
+  
+  no-condition-query:
+    event: MyEvent
+    output: total-count
+    display: facet-with-timeseries
+    title: My Query without a Condition
