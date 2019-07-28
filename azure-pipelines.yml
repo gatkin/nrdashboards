@@ -22,4 +22,3 @@ jobs:
         inputs:
           testResultsFiles: 'test_results/test_results.xml'
         condition: succeededOrFailed()
-        workingDirectory: '$(System.DefaultWorkingDirectory)'
