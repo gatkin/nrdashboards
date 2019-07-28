@@ -13,7 +13,7 @@ jobs:
         displayName: Install Dependencies
         workingDirectory: '$(System.DefaultWorkingDirectory)'
 
-      - bash: 'python -m pipenv run make per-commit'
+      - bash: 'export PYTHONPATH=$(pwd) && python -m pipenv run make per-commit'
         displayName: Build
         workingDirectory: '$(System.DefaultWorkingDirectory)'
       
@@ -22,3 +22,4 @@ jobs:
         inputs:
           testResultsFiles: 'test_results/test_results.xml'
         condition: succeededOrFailed()
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
