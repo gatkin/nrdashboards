@@ -19,6 +19,9 @@ lint: type-check
 
 per-commit: lint coverage
 
+publish-coverage:
+	coveralls
+
 test:
 	python -m pytest -vv
 

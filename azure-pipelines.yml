@@ -22,3 +22,7 @@ jobs:
         inputs:
           testResultsFiles: 'test_results/test_results.xml'
         condition: succeededOrFailed()
+      
+      - bash: 'make publish-coverage'
+        displayName: Publish to Coveralls
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
