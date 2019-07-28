@@ -24,5 +24,7 @@ jobs:
         condition: succeededOrFailed()
       
       - bash: 'python -m pipenv run make publish-coverage'
-        displayName: Publish to Coveralls
+        displayName: Publish Coverage Report to Coveralls
         workingDirectory: '$(System.DefaultWorkingDirectory)'
+        env:
+          COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN)
