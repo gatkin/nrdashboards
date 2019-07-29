@@ -9,10 +9,10 @@ New Relic Dashboard Builder is a command-line tool for configuring New Relic das
 With New Relic Dashboard Builder, definitions for dashboards consist of five components:
 
 1. **Conditions** - Specify the conditions used in the `WHERE` clauses of NRQL queries (e.g. `WHERE response.status = 200`)
-2. **Output Selections** - Specify the fields and aggregations selected from an NRQL query (e.g. `SELECT COUNT(*)` or `SELECT response.status`)
-3. **Displays** - Specify how the data from an NRQL query is displayed by specifying any `SINCE`, `UNTIL`, `WITH TIMEZONE`, `COMPARE WITH`, or `TIMESERIES` clauses
-4. **Queries** - Specify a full NRQL query by tying conditions, output selections, and displays together.
-5. **Dashboards** - Specify which widgets using which queries make up a dashboard
+2. **Output Selections** - Specify the fields and aggregations selected from NRQL queries (e.g. `SELECT COUNT(*)` or `SELECT response.status`)
+3. **Displays** - Specify how the data from NRQL queries are displayed by specifying any `SINCE`, `UNTIL`, `WITH TIMEZONE`, `COMPARE WITH`, or `TIMESERIES` clauses
+4. **Queries** - Specify full NRQL queries by tying conditions, output selections, and displays together.
+5. **Dashboards** - Specify which widgets using which queries go into which dashboards
 
 Below is an example of a dashboard that displays information about transactions from a service
 
