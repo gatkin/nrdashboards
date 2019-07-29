@@ -200,6 +200,11 @@ def test_parse_dashboards():
     _assert_can_parse_dashboards("dashboards.yml", expected)
 
 
+def test_parse_file():
+    actual = parsing.parse_file(_get_test_file_path("dashboards.yml"))
+    assert actual
+
+
 def _assert_can_parse_dashboards(file_name, expected):
     config = _load_test_file(file_name)
     actual = parsing.parse_dashboards(config)
@@ -231,9 +236,13 @@ def _assert_can_parse_widgets(file_name, expected):
     assert expected == actual
 
 
-def _load_test_file(file_name):
+def _get_test_file_path(file_name):
     test_dir = os.path.dirname(os.path.abspath(__file__))
-    test_file_path = os.path.join(test_dir, "test_data", file_name)
+    return os.path.join(test_dir, "test_data", file_name)    
+
+
+def _load_test_file(file_name):
+    test_file_path = _get_test_file_path(file_name)
     with open(test_file_path, "r") as test_file:
         return yaml.safe_load(test_file)
 
