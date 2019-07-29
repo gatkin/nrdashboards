@@ -238,7 +238,7 @@ def _assert_can_parse_widgets(file_name, expected):
 
 def _get_test_file_path(file_name):
     test_dir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(test_dir, "test_data", file_name)    
+    return os.path.join(test_dir, "test_data", file_name)
 
 
 def _load_test_file(file_name):
