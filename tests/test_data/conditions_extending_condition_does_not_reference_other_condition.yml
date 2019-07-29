@@ -1,0 +1,5 @@
+conditions:
+  my-condition:
+    and:
+      - env = 'Prod'
+      - state = 'Success'

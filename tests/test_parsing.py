@@ -13,6 +13,7 @@ def test_parse_empty_file():
     assert {} == parsing.parse_output_selections(config, {})
     assert {} == parsing.parse_displays(config)
     assert {} == parsing.parse_dashboards(config)
+    assert {} == parsing.parse_queries(config)
 
 
 def test_parse_conditions():
@@ -38,7 +39,57 @@ def test_parse_conditions():
         ),
     }
 
-    _assert_can_parse_conditions("conditions.yml", expected)
+    actual = _parse_conditions("conditions.yml")
+
+    assert expected == actual
+
+
+def test_parse_only_base_conditions():
+    expected = {
+        "condition-one": models.QueryCondition(
+            name="condition-one", nrql="env = 'Prod'"
+        ),
+        "condition-two": models.QueryCondition(
+            name="condition-two", nrql="server = 'Prod1'"
+        ),
+    }
+
+    actual = _parse_conditions("only_base_conditions.yml")
+
+    assert expected == actual
+
+
+def test_parse_extend_only_other_conditions():
+    condition_name = "extending-condition"
+    expected = models.QueryCondition(
+        name=condition_name, nrql="(env = 'Prod') OR (server = 'Prod1')"
+    )
+
+    actual = _parse_conditions("extend_only_other_conditions.yml")
+
+    assert expected == actual[condition_name]
+
+
+def test_parse_invalid_condition_operator():
+    with pytest.raises(models.InvalidExtendingConditionException):
+        _parse_conditions("invalid_condition_operator.yml")
+
+
+def test_parse_extending_condition_does_not_reference_other_condition():
+    with pytest.raises(models.InvalidExtendingConditionException):
+        _parse_conditions(
+            "conditions_extending_condition_does_not_reference_other_condition.yml"
+        )
+
+
+def test_parse_invalid_condition_operands():
+    with pytest.raises(models.InvalidExtendingConditionException):
+        _parse_conditions("invalid_condition_operands.yml")
+
+
+def test_parse_unresolvable_extending_condition():
+    with pytest.raises(models.InvalidExtendingConditionException):
+        _parse_conditions("unresolvable_extending_condition.yml")
 
 
 def test_parse_output_selections():
@@ -161,12 +212,6 @@ def _assert_can_parse_displays(file_name, expected):
     assert expected == actual
 
 
-def _assert_can_parse_conditions(file_name, expected):
-    config = _load_test_file(file_name)
-    actual = parsing.parse_conditions(config)
-    assert expected == actual
-
-
 def _assert_can_parse_output_selections(file_name, expected):
     config = _load_test_file(file_name)
     conditions = parsing.parse_conditions(config)
@@ -191,3 +236,8 @@ def _load_test_file(file_name):
     test_file_path = os.path.join(test_dir, "test_data", file_name)
     with open(test_file_path, "r") as test_file:
         return yaml.safe_load(test_file)
+
+
+def _parse_conditions(file_name):
+    config = _load_test_file(file_name)
+    return parsing.parse_conditions(config)

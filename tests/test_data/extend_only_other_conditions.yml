@@ -1,0 +1,9 @@
+conditions:
+  condition-one: env = 'Prod'
+
+  condition-two: server = 'Prod1'
+
+  extending-condition:
+    or:
+      - condition: condition-one
+      - condition: condition-two

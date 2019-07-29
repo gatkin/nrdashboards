@@ -138,10 +138,10 @@ def parse_output_selections(
 
 def parse_queries(config: Dict) -> Dict[str, Query]:
     """Parse queries from configuration."""
-    if "queries" not in config:
+    query_configs = config.get("queries")
+    if not query_configs:
         return {}
 
-    query_configs = config["queries"]
     conditions = parse_conditions(config)
     output_selections = parse_output_selections(config, conditions)
     displays = parse_displays(config)

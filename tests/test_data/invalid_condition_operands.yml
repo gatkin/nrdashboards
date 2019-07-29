@@ -1,0 +1,5 @@
+conditions:
+  my-condition:
+    and:
+      - server = 'prod1'
+      - filter: my-filter

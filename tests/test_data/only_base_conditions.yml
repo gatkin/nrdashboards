@@ -1,0 +1,4 @@
+conditions:
+  condition-one: env = 'Prod'
+
+  condition-two: server = 'Prod1'

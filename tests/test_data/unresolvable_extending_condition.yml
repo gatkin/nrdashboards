@@ -1,0 +1,14 @@
+conditions:
+  base-condition: status = 'success'
+
+  first-extending-condition:
+    and:
+      - condition: base-condition
+      - env = 'Prod'
+  
+  second-extending-condition:
+    or:
+      - condition: base-condition
+      - condition: misspelled-condition
+
+      
