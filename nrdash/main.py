@@ -23,5 +23,10 @@ def build(config_file, api_key, account_id):
             client.create_dashboard(dashboard)
 
 
-if __name__ == "__main__":
+def main():
+    """Main entry point."""
     build()  # pylint: disable=no-value-for-parameter,too-many-function-args
+
+
+if __name__ == "__main__":
+    main()

@@ -18,7 +18,7 @@ lint: type-check
 	python -m pylint --rcfile nrdash/.pylintrc nrdash/
 
 package:
-	rm -R dist/ && rm -R build/ && rm -R nrdash.egg-info/ && python setup.py sdist bdist_wheel
+	python setup.py sdist bdist_wheel
 
 per-commit: lint coverage
 
