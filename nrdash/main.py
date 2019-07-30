@@ -24,7 +24,7 @@ def build(config_file, api_key, account_id):
 
 
 def main():
-    """Main entry point."""
+    """Provide main entry point."""
     build()  # pylint: disable=no-value-for-parameter,too-many-function-args
 
 
