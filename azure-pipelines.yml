@@ -28,3 +28,27 @@ jobs:
         workingDirectory: '$(System.DefaultWorkingDirectory)'
         env:
           COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN)
+  
+  - job: Publish
+    dependsOn:
+      - Build
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/')) # Only publish on tags
+    pool:
+      vmImage: 'Ubuntu 16.04'
+    
+    steps:
+      - task: UsePythonVersion@0
+        displayName: Setup Python
+        inputs:
+          versionSpec: '3.7'
+      
+      - bash: 'make install'
+        displayName: Install Dependencies
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+      
+      - bash: 'make publish-pypi'
+        displayName: Publish Package to PyPi
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+        env:
+          PYPI_USERNAME: $(PYPI_USERNAME)
+          PYPI_PASSWORD: $(PYPI_PASSWORD)

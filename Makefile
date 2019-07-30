@@ -17,10 +17,19 @@ lint: type-check
 	python -m pydocstyle nrdash/
 	python -m pylint --rcfile nrdash/.pylintrc nrdash/
 
+package:
+	rm -R dist/ && rm -R build/ && rm -R nrdash.egg-info/ && python setup.py sdist bdist_wheel
+
 per-commit: lint coverage
 
 publish-coverage:
 	coveralls
+
+publish-pypi: package
+	python3 -m twine upload --verbose --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} --repository-url https://upload.pypi.org/legacy/ dist/*
+
+publish-pypi-test: package
+	python3 -m twine upload --verbose --username ${PYPI_TEST_USERNAME} --password ${PYPI_TEST_PASSWORD} --repository-url https://test.pypi.org/legacy/ dist/*
 
 test:
 	python -m pytest -vv
