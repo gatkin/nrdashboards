@@ -1,6 +1,8 @@
 # New Relic Dashboard Builder
 [![Build Status](https://dev.azure.com/gregscottatkin/New%20Relic%20Dashboard%20Builder/_apis/build/status/gatkin.nrdashboards?branchName=master)](https://dev.azure.com/gregscottatkin/New%20Relic%20Dashboard%20Builder/_build/latest?definitionId=7&branchName=master)
 [![Coverage Status](https://coveralls.io/repos/github/gatkin/nrdashboards/badge.svg?branch=HEAD)](https://coveralls.io/github/gatkin/nrdashboards?branch=HEAD)
+![GitHub](https://img.shields.io/github/license/gatkin/nrdashboards?color=blue)
+[![Code Style](https://img.shields.io/badge/codestyle-black-black)](https://img.shields.io/badge/codestyle-black-black)
 
 New Relic Dashboard Builder is a command-line tool for configuring New Relic dashboards using simple, human-readable YAML files. With New Relic Dashboard Builder, definitions for New Relic dashboards can be kept in version control to support tracking change history for dashboards. Definitions for NRQL queries and widgets can be consolidated into a single canonical location to be shared across multiple dashboards, enabling easier maintenance of a large number of dashboards and widgets.
 
