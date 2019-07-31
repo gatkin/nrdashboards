@@ -1,5 +1,5 @@
 coverage:
-	python -m coverage run tests/run_tests.py --junit-xml=test_results/test_results.xml
+	python -m coverage run tests/run_tests.py -v --junit-xml=test_results/test_results.xml
 	python -m coverage report
 	python -m coverage html
 

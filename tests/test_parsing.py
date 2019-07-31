@@ -1,3 +1,4 @@
+"""Test parsing YAML dashboard configurations."""
 import os
 
 import pytest

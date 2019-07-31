@@ -44,7 +44,7 @@ class WidgetVisualization(Enum):
     FACETED_LINE_CHART = "faceted_line_chart"
     FACET_PIE_CHART = "facet_pie_chart"
     FACET_TABLE = "facet_table"
-    FACET_AREA_CHART = "faceted_area_chart"
+    FACETED_AREA_CHART = "faceted_area_chart"
     HEATMAP = "heatmap"
     ATTRIBUTE_SHEET = "attribute_sheet"
     SINGLE_EVENT = "single_event"
@@ -73,7 +73,7 @@ class QueryCondition:
     """A query condition."""
 
     name: str = attr.ib()
-    nrql: str = attr.ib(default=None)
+    nrql: str = attr.ib()
 
 
 @attr.s(frozen=True)
