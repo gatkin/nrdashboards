@@ -116,7 +116,24 @@ def test_parse_output_selections():
         ),
     }
 
-    _assert_can_parse_output_selections("output_selections.yml", expected)
+    actual = _parse_output_selections("output_selections.yml")
+
+    assert expected == actual
+
+
+def test_parse_invalid_output_selection_type():
+    with pytest.raises(models.InvalidOutputConfigurationException):
+        _parse_output_selections("invalid_output_selection_type.yml")
+
+
+def test_parse_invalid_output_selection_component_type():
+    with pytest.raises(models.InvalidOutputConfigurationException):
+        _parse_output_selections("invalid_output_selection_component_type.yml")
+
+
+def test_parse_invalid_output_selection_component_name():
+    with pytest.raises(models.InvalidOutputConfigurationException):
+        _parse_output_selections("invalid_output_selection_component_name.yml")
 
 
 def test_parse_displays():
@@ -218,13 +235,6 @@ def _assert_can_parse_displays(file_name, expected):
     assert expected == actual
 
 
-def _assert_can_parse_output_selections(file_name, expected):
-    config = _load_test_file(file_name)
-    conditions = parsing.parse_conditions(config)
-    actual = parsing.parse_output_selections(config, conditions)
-    assert expected == actual
-
-
 def _assert_can_parse_queries(file_name, expected):
     config = _load_test_file(file_name)
     actual = parsing.parse_queries(config)
@@ -251,3 +261,9 @@ def _load_test_file(file_name):
 def _parse_conditions(file_name):
     config = _load_test_file(file_name)
     return parsing.parse_conditions(config)
+
+
+def _parse_output_selections(file_name):
+    config = _load_test_file(file_name)
+    conditions = parsing.parse_conditions(config)
+    return parsing.parse_output_selections(config, conditions)

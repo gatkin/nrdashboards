@@ -1,0 +1,5 @@
+output-selections:
+  invalid-output:
+    not-a-filter:
+      function: LATEST(timestamp)
+      condition: status = 'Success'

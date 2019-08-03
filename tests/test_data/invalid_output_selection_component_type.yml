@@ -1,0 +1,5 @@
+output-selections:
+  invalid-output:
+      - 1
+      - 2
+      - 3
