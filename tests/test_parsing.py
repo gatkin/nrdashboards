@@ -158,7 +158,9 @@ def test_parse_displays():
         ),
     }
 
-    _assert_can_parse_displays("displays.yml", expected)
+    actual = _parse_displays("displays.yml")
+
+    assert expected == actual
 
 
 def test_parse_queries():
@@ -193,7 +195,9 @@ def test_parse_queries():
         ),
     }
 
-    _assert_can_parse_queries("queries.yml", expected)
+    actual = _parse_queries("queries.yml")
+
+    assert expected == actual
 
 
 def test_parse_dashboards():
@@ -215,36 +219,14 @@ def test_parse_dashboards():
         )
     }
 
-    _assert_can_parse_dashboards("dashboards.yml", expected)
+    actual = _parse_dashboards("dashboards.yml")
+
+    assert expected == actual
 
 
 def test_parse_file():
     actual = parsing.parse_file(_get_test_file_path("dashboards.yml"))
     assert actual
-
-
-def _assert_can_parse_dashboards(file_name, expected):
-    config = _load_test_file(file_name)
-    actual = parsing.parse_dashboards(config)
-    assert expected == actual
-
-
-def _assert_can_parse_displays(file_name, expected):
-    config = _load_test_file(file_name)
-    actual = parsing.parse_displays(config)
-    assert expected == actual
-
-
-def _assert_can_parse_queries(file_name, expected):
-    config = _load_test_file(file_name)
-    actual = parsing.parse_queries(config)
-    assert expected == actual
-
-
-def _assert_can_parse_widgets(file_name, expected):
-    config = _load_test_file(file_name)
-    actual = parsing.parse_widgets(config)
-    assert expected == actual
 
 
 def _get_test_file_path(file_name):
@@ -263,7 +245,22 @@ def _parse_conditions(file_name):
     return parsing.parse_conditions(config)
 
 
+def _parse_dashboards(file_name):
+    config = _load_test_file(file_name)
+    return parsing.parse_dashboards(config)
+
+
+def _parse_displays(file_name):
+    config = _load_test_file(file_name)
+    return parsing.parse_displays(config)
+
+
 def _parse_output_selections(file_name):
     config = _load_test_file(file_name)
     conditions = parsing.parse_conditions(config)
     return parsing.parse_output_selections(config, conditions)
+
+
+def _parse_queries(file_name):
+    config = _load_test_file(file_name)
+    return parsing.parse_queries(config)
