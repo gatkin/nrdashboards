@@ -1,0 +1,9 @@
+dashboards:
+  my-dashboard:
+    title: My Dashboard
+    widgets:
+      - widget:
+        query: my-query
+        row: 1
+        column: 1
+        width: 1

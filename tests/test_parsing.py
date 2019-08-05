@@ -240,6 +240,26 @@ def test_parse_dashboards():
     assert expected == actual
 
 
+def test_missing_widget_column():
+    _assert_invalid_widget_configuration("missing_widget_column.yml")
+
+
+def test_missing_widget_height():
+    _assert_invalid_widget_configuration("missing_widget_height.yml")
+
+
+def test_missing_widget_query():
+    _assert_invalid_widget_configuration("missing_widget_query.yml")
+
+
+def test_missing_widget_row():
+    _assert_invalid_widget_configuration("missing_widget_row.yml")
+
+
+def test_missing_widget_width():
+    _assert_invalid_widget_configuration("missing_widget_width.yml")
+
+
 def test_parse_file():
     actual = parsing.parse_file(_get_test_file_path("dashboards.yml"))
     assert actual
@@ -248,6 +268,11 @@ def test_parse_file():
 def _assert_invalid_query_configuration(file_name):
     with pytest.raises(models.InvalidQueryConfigurationException):
         _parse_queries(file_name)
+
+
+def _assert_invalid_widget_configuration(file_name):
+    with pytest.raises(models.InvalidWidgetConfigurationException):
+        _parse_dashboards(file_name)
 
 
 def _get_test_file_path(file_name):
