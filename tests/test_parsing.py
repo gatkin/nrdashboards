@@ -72,25 +72,21 @@ def test_parse_extend_only_other_conditions():
 
 
 def test_parse_invalid_condition_operator():
-    with pytest.raises(models.InvalidExtendingConditionException):
-        _parse_conditions("invalid_condition_operator.yml")
+    _assert_invalid_condition_configuration("invalid_condition_operator.yml")
 
 
 def test_parse_extending_condition_does_not_reference_other_condition():
-    with pytest.raises(models.InvalidExtendingConditionException):
-        _parse_conditions(
-            "conditions_extending_condition_does_not_reference_other_condition.yml"
-        )
+    _assert_invalid_condition_configuration(
+        "conditions_extending_condition_does_not_reference_other_condition.yml"
+    )
 
 
 def test_parse_invalid_condition_operands():
-    with pytest.raises(models.InvalidExtendingConditionException):
-        _parse_conditions("invalid_condition_operands.yml")
+    _assert_invalid_condition_configuration("invalid_condition_operands.yml")
 
 
 def test_parse_unresolvable_extending_condition():
-    with pytest.raises(models.InvalidExtendingConditionException):
-        _parse_conditions("unresolvable_extending_condition.yml")
+    _assert_invalid_condition_configuration("unresolvable_extending_condition.yml")
 
 
 def test_parse_output_selections():
@@ -122,18 +118,15 @@ def test_parse_output_selections():
 
 
 def test_parse_invalid_output_selection_type():
-    with pytest.raises(models.InvalidOutputConfigurationException):
-        _parse_output_selections("invalid_output_selection_type.yml")
+    _assert_invalid_output_configuration("invalid_output_selection_type.yml")
 
 
 def test_parse_invalid_output_selection_component_type():
-    with pytest.raises(models.InvalidOutputConfigurationException):
-        _parse_output_selections("invalid_output_selection_component_type.yml")
+    _assert_invalid_output_configuration("invalid_output_selection_component_type.yml")
 
 
 def test_parse_invalid_output_selection_component_name():
-    with pytest.raises(models.InvalidOutputConfigurationException):
-        _parse_output_selections("invalid_output_selection_component_name.yml")
+    _assert_invalid_output_configuration("invalid_output_selection_component_name.yml")
 
 
 def test_parse_displays():
@@ -263,6 +256,16 @@ def test_missing_widget_width():
 def test_parse_file():
     actual = parsing.parse_file(_get_test_file_path("dashboards.yml"))
     assert actual
+
+
+def _assert_invalid_condition_configuration(file_name):
+    with pytest.raises(models.InvalidExtendingConditionException):
+        _parse_conditions(file_name)
+
+
+def _assert_invalid_output_configuration(file_name):
+    with pytest.raises(models.InvalidOutputConfigurationException):
+        _parse_output_selections(file_name)
 
 
 def _assert_invalid_query_configuration(file_name):
