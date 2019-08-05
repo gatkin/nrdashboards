@@ -209,6 +209,18 @@ def test_parse_missing_query_title():
     _assert_invalid_query_configuration("missing_query_title.yml")
 
 
+def test_parse_invalid_query_condition_reference():
+    _assert_invalid_query_configuration("invalid_query_condition_reference.yml")
+
+
+def test_parse_invalid_query_display_reference():
+    _assert_invalid_query_configuration("invalid_query_display_reference.yml")
+
+
+def test_parse_invalid_query_output_reference():
+    _assert_invalid_query_configuration("invalid_query_output_reference.yml")
+
+
 def test_parse_dashboards():
     expected = {
         "my-dashboard": models.Dashboard(

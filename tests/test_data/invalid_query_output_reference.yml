@@ -1,0 +1,11 @@
+displays:
+  facet-with-timeseries:
+    nrql: FACET EventType LIMIT 30 TIMESERIES
+    visualization: line_chart
+
+queries:
+  my-query:
+    event: MyEvent
+    output: does-not-exist
+    display: facet-with-timeseries
+    title: My Query

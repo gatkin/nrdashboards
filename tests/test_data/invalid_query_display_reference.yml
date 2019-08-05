@@ -1,0 +1,8 @@
+output-selections:
+  total-count: COUNT(*) AS Total
+
+queries:
+  my-query:
+    event: MyEvent
+    output: total-count
+    display: does-not-exist

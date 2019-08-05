@@ -1,0 +1,15 @@
+output-selections:
+  total-count: COUNT(*) AS Total
+
+displays:
+  facet-with-timeseries:
+    nrql: FACET EventType LIMIT 30 TIMESERIES
+    visualization: line_chart
+
+queries:
+  my-query:
+    event: MyEvent
+    condition: does-not-exist
+    output: total-count
+    display: facet-with-timeseries
+    title: My Query
