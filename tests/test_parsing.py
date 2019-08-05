@@ -245,24 +245,28 @@ def test_parse_dashboards():
     assert expected == actual
 
 
-def test_missing_widget_column():
+def test_parse_missing_widget_column():
     _assert_invalid_widget_configuration("missing_widget_column.yml")
 
 
-def test_missing_widget_height():
+def test_parse_missing_widget_height():
     _assert_invalid_widget_configuration("missing_widget_height.yml")
 
 
-def test_missing_widget_query():
+def test_parse_missing_widget_query():
     _assert_invalid_widget_configuration("missing_widget_query.yml")
 
 
-def test_missing_widget_row():
+def test_parse_missing_widget_row():
     _assert_invalid_widget_configuration("missing_widget_row.yml")
 
 
-def test_missing_widget_width():
+def test_parse_missing_widget_width():
     _assert_invalid_widget_configuration("missing_widget_width.yml")
+
+
+def test_parse_invalid_widget_query_reference():
+    _assert_invalid_widget_configuration("invalid_widget_query_reference.yml")
 
 
 def test_parse_file():

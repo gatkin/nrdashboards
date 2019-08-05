@@ -1,0 +1,10 @@
+dashboards:
+  my-dashboard:
+    title: My Dashboard
+    widgets:
+      - widget:
+        query: does-not-exist
+        row: 1
+        column: 1
+        width: 1
+        height: 1
