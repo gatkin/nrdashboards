@@ -200,6 +200,22 @@ def test_parse_queries():
     assert expected == actual
 
 
+def test_parse_missing_query_display():
+    _assert_invalid_query_configuration("missing_query_display.yml")
+
+
+def test_parse_missing_query_event():
+    _assert_invalid_query_configuration("missing_query_event.yml")
+
+
+def test_parse_missing_query_output():
+    _assert_invalid_query_configuration("missing_query_output.yml")
+
+
+def test_parse_missing_query_title():
+    _assert_invalid_query_configuration("missing_query_title.yml")
+
+
 def test_parse_dashboards():
     expected = {
         "my-dashboard": models.Dashboard(
@@ -227,6 +243,11 @@ def test_parse_dashboards():
 def test_parse_file():
     actual = parsing.parse_file(_get_test_file_path("dashboards.yml"))
     assert actual
+
+
+def _assert_invalid_query_configuration(file_name):
+    with pytest.raises(models.InvalidQueryConfigurationException):
+        _parse_queries(file_name)
 
 
 def _get_test_file_path(file_name):

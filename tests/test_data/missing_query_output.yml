@@ -1,0 +1,6 @@
+queries:
+  my-query:
+    event: MyEvent
+    condition: prod-events
+    display: facet-with-timeseries
+    title: My Query

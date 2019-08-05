@@ -1,0 +1,6 @@
+queries:
+  my-query:
+    condition: prod-events
+    output: total-count
+    display: facet-with-timeseries
+    title: My Query
