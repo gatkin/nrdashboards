@@ -6,8 +6,8 @@ import requests
 from .models import Dashboard, Widget, NewRelicApiException
 
 
-_BASE_URL = "https://api.newrelic.com/v2/"
-_DASHBOARDS_URL = _BASE_URL + "dashboards.json"
+BASE_URL = "https://api.newrelic.com/v2/"
+DASHBOARDS_URL = BASE_URL + "dashboards.json"
 
 
 class NewRelicApiClient:
@@ -20,13 +20,13 @@ class NewRelicApiClient:
 
     def create_dashboard(self, dashboard: Dashboard) -> None:
         """Create a new dashboard."""
-        self._send_dashboard_data(requests.post, _DASHBOARDS_URL, dashboard)
+        self._send_dashboard_data(requests.post, DASHBOARDS_URL, dashboard)
 
     def get_dashboard_id_by_title(self, dashboard_title: str) -> Optional[int]:
         """Get dashboard id by title, returns None if there is no dashboard with the provided name."""
         params = {"filter[title]": dashboard_title}
         response = requests.get(
-            _DASHBOARDS_URL, headers=self._auth_headers(), params=params
+            DASHBOARDS_URL, headers=self._auth_headers(), params=params
         )
         if response.status_code != 200:
             raise NewRelicApiException(
@@ -56,7 +56,7 @@ class NewRelicApiClient:
 
     def update_dashboard(self, dashboard_id: int, dashboard: Dashboard) -> None:
         """Update an existing dashboard with the given id."""
-        url = f"{_BASE_URL}dashboards/{dashboard_id}.json"
+        url = f"{BASE_URL}dashboards/{dashboard_id}.json"
         self._send_dashboard_data(requests.put, url, dashboard)
 
     def _auth_headers(self):
