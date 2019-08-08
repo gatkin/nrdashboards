@@ -318,12 +318,17 @@ def _parse_widget(widget_config, dashboard_name, queries):
     for field in required_fields:
         _validate_required_widget_field(field, widget_config, dashboard_name)
 
-    query_name = widget_config["query"]
-    query = queries.get(query_name)
-    if not query:
-        raise InvalidWidgetConfigurationException(
-            f"Invalid query, {query_name}, specified for widget on dashboard {dashboard_name}"
-        )
+    query_config = widget_config["query"]
+
+    if isinstance(query_config, str):
+        # Refers to a query defined in the "queries" section
+        query = queries.get(query_config)
+        if not query:
+            raise InvalidWidgetConfigurationException(
+                f"Invalid query name, {query_config}, specified for widget on dashboard {dashboard_name}"
+            )
+    else:
+        query = _parse_inline_query_config(f"{dashboard_name}-inline-query", query_config)
 
     widget = Widget(
         title=query.title,

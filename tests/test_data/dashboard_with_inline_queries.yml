@@ -1,0 +1,13 @@
+dashboards:
+  sample-dashboard:
+    title: Sample Dashboard
+    widgets:
+      - widget:
+        query:
+          title: Transactions by Response Status
+          nrql: SELECT COUNT(*) FROM Transaction WHERE transactionType = 'Web' FACET response.status
+          visualization: facet_bar_chart
+        row: 1
+        column: 1
+        width: 3
+        height: 2

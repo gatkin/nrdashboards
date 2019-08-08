@@ -252,6 +252,30 @@ def test_parse_dashboards():
     assert expected == actual
 
 
+def test_parse_dashboard_with_inline_queries():
+    expected = {
+        "sample-dashboard": models.Dashboard(
+            name="sample-dashboard",
+            title="Sample Dashboard",
+            widgets=[
+                models.Widget(
+                    title="Transactions by Response Status",
+                    query="SELECT COUNT(*) FROM Transaction WHERE transactionType = 'Web' FACET response.status",
+                    visualization=models.WidgetVisualization.FACET_BAR_CHART,
+                    row=1,
+                    column=1,
+                    width=3,
+                    height=2,
+                )
+            ]
+        )
+    }
+
+    actual = _parse_dashboards("dashboard_with_inline_queries.yml")
+
+    assert expected == actual
+
+
 def test_parse_missing_widget_column():
     _assert_invalid_widget_configuration("missing_widget_column.yml")
 
