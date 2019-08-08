@@ -21,6 +21,8 @@ coverage = "*"
 coveralls = "*"
 twine = "*"
 responses = "*"
+mkdocs = "*"
+mkdocs-material = "*"
 
 [requires]
 python_version = "3.7"
