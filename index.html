@@ -203,6 +203,20 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#installation" title="Installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+      
       
       
       
@@ -265,6 +279,20 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#installation" title="Installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+      
       
       
       
@@ -283,7 +311,7 @@
                 
                 
                 <h1 id="overview">Overview</h1>
-<p>New Relic Dashboard Builder is a tool for declaratively configuring New Relic dashboards using YAML files.</p>
+<p>New Relic Dashboard Builder is a command line tool for declaratively configuring New Relic dashboards using YAML files.</p>
 <h2 id="design-goals">Design Goals</h2>
 <p>New Relic Dashboard Builder was designed to help solve the problem of effectively managing a large and growing number of dashboards used to monitor a wide variety of services. It aims to fulfill two design goals that could not be met with using the New Relic UI to create and maintain dashboards:</p>
 <ol>
@@ -295,6 +323,15 @@
 </li>
 </ol>
 <p>The design of New Relic Dashboard Builder was inspired by the <a href="https://docs.openstack.org/infra/jenkins-job-builder/">Jenkins Job Builder</a> tool.</p>
+<h2 id="installation">Installation</h2>
+<p>The New Relic Dashboard Builder command line tool that can be installed from <a href="https://pypi.org/project/nrdash/">PyPI</a> using pip</p>
+<pre><code class="sh">pip install nrdash
+</code></pre>
+
+<h2 id="usage">Usage</h2>
+<p>To use New Relic Dashboard Builder, you must first acquire an <a href="https://docs.newrelic.com/docs/insights/insights-api/manage-dashboards/insights-dashboard-api#requirements"><strong>admin</strong> New Relic API key</a>. Once you have an admin API key, you can provide the admin API key and your dashboard configuration YAML file to the  New Relic Dashboard Builder command line tool.</p>
+<pre><code class="sh">nrdash --api-key &lt;YOUR_ADMIN_API_KEY&gt; --account-id &lt;YOUR_ACCOUNT_ID&gt; &lt;DASHBOARD_DEFINITION_YAML_FILE&gt;
+</code></pre>
                 
                   
                 

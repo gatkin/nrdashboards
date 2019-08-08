@@ -190,9 +190,38 @@
       
     
     
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Guide
+      </label>
+    
     <a href="./" title="Guide" class="md-nav__link md-nav__link--active">
       Guide
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#basic-query-and-dashboard-definitions" title="Basic Query and Dashboard Definitions" class="md-nav__link">
+    Basic Query and Dashboard Definitions
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
     
   </li>
 
@@ -226,6 +255,22 @@
     
   
   
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#basic-query-and-dashboard-definitions" title="Basic Query and Dashboard Definitions" class="md-nav__link">
+    Basic Query and Dashboard Definitions
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -238,6 +283,26 @@
                 
                 
                 <h1 id="guide">Guide</h1>
+<p>This guide provides a walkthrough for getting started with using New Relic Dashboard builder to define and manage your New Relic dashboards.</p>
+<h2 id="basic-query-and-dashboard-definitions">Basic Query and Dashboard Definitions</h2>
+<p>New Relic dashboards are composed of one or more widgets. Each widget has a size and location on the dashboard as well as an NRQL query that defines the data that is displayed by the widget.</p>
+<p>Suppose we wanted to create a dashboard consisting the following widget:</p>
+<p><img alt="Basic Dashboard" src="../images/BasicWidget.png" /></p>
+<p>This dashboard could be defined in a YAML definition file as</p>
+<pre><code class="yaml">dashboards:
+  sample-dashboard:
+    title: Sample Dashboard
+    widgets:
+      - widget:
+        query:
+          title: Transactions by Response Status
+          nrql: SELECT COUNT(*) FROM Transaction WHERE transactionType = 'Web' FACET response.status
+          visualization: facet_bar_chart
+        row: 1
+        column: 1
+        width: 3
+        height: 2
+</code></pre>
                 
                   
                 
