@@ -1,0 +1,11 @@
+queries:
+  minimal-inline-query:
+    title: Web Transactions by Response Status
+    nrql: SELECT COUNT(*) FROM Transaction WHERE transactionType = 'Web' FACET response.status
+    visualization: facet_bar_chart
+
+  inline-query-with-notes:
+    title: Latest Transaction
+    nrql: SELECT LATEST(timestamp) FROM Transaction
+    visualization: billboard
+    notes: My notes

@@ -18,8 +18,8 @@ def test_invalid_widget_visualization_string():
         models.WidgetVisualization.from_str("invalid")
 
 
-def test_query_to_nrql_display_and_condition():
-    query = _create_query(
+def test_componentized_query_to_nrql_display_and_condition():
+    query = _create_componentized_query(
         event="Transactions",
         condition=_create_condition("StatusCode = 200"),
         output=_create_output_selection("SELECT COUNT(*)"),
@@ -33,8 +33,8 @@ def test_query_to_nrql_display_and_condition():
     assert expected == actual
 
 
-def test_query_to_nrql_display_no_condition():
-    query = _create_query(
+def test_componentized_query_to_nrql_display_no_condition():
+    query = _create_componentized_query(
         event="Transactions",
         condition=None,
         output=_create_output_selection("SELECT COUNT(*)"),
@@ -48,8 +48,8 @@ def test_query_to_nrql_display_no_condition():
     assert expected == actual
 
 
-def test_query_to_nrql_no_display_with_condition():
-    query = _create_query(
+def test_componentized_query_to_nrql_no_display_with_condition():
+    query = _create_componentized_query(
         event="Transactions",
         condition=_create_condition("StatusCode = 200"),
         output=_create_output_selection("SELECT COUNT(*)"),
@@ -63,8 +63,8 @@ def test_query_to_nrql_no_display_with_condition():
     assert expected == actual
 
 
-def test_query_to_nrql_no_display_no_condition():
-    query = _create_query(
+def test_componentized_query_to_nrql_no_display_no_condition():
+    query = _create_componentized_query(
         event="Transactions",
         condition=None,
         output=_create_output_selection("SELECT COUNT(*)"),
@@ -97,16 +97,11 @@ def _create_output_selection(nrql):
     return models.QueryOutputSelection(name="test-output", nrql=nrql)
 
 
-def _create_query(event, condition, output, display=None):
+def _create_componentized_query(event, condition, output, display=None):
     """Create a query object for testing."""
     if not display:
         display = _create_display()
 
-    return models.Query(
-        name="test-query",
-        title="Test query",
-        event=event,
-        output=output,
-        display=display,
-        condition=condition,
+    return models.ComponentizedQuery(
+        event=event, output=output, display=display, condition=condition
     )

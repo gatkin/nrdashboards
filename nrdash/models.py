@@ -94,16 +94,13 @@ class QueryDisplay:
 
 
 @attr.s(frozen=True)
-class Query:
-    """An NRQL query."""
+class ComponentizedQuery:
+    """An NRQL query defined with several query components."""
 
-    name: str = attr.ib()
-    title: str = attr.ib()
     event: str = attr.ib()
     output: QueryOutputSelection = attr.ib()
     display: QueryDisplay = attr.ib()
     condition: Optional[QueryCondition] = attr.ib(default=None)
-    notes: Optional[str] = attr.ib(default=None)
 
     def to_nrql(self) -> str:
         """Convert a query into a raw NRQL query string."""
@@ -118,6 +115,17 @@ class Query:
             condition_nrql = ""
 
         return f"{self.output.nrql} FROM {self.event}{condition_nrql}{display_nrql}"
+
+
+@attr.s(frozen=True)
+class Query:
+    """An NRQL query."""
+
+    name: str = attr.ib()
+    title: str = attr.ib()
+    nrql: str = attr.ib()
+    visualization: WidgetVisualization = attr.ib()
+    notes: Optional[str] = attr.ib(default=None)
 
 
 @attr.s(frozen=True)

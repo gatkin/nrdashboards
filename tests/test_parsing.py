@@ -161,34 +161,41 @@ def test_parse_queries():
         "my-query": models.Query(
             name="my-query",
             title="My Query",
+            nrql="SELECT COUNT(*) AS Total FROM MyEvent WHERE env = 'Prod' FACET EventType LIMIT 30 TIMESERIES",
+            visualization=models.WidgetVisualization.LINE_CHART,
             notes="Notes about my query",
-            event="MyEvent",
-            condition=models.QueryCondition(name="prod-events", nrql="env = 'Prod'"),
-            output=models.QueryOutputSelection(
-                name="total-count", nrql="SELECT COUNT(*) AS Total"
-            ),
-            display=models.QueryDisplay(
-                name="facet-with-timeseries",
-                nrql="FACET EventType LIMIT 30 TIMESERIES",
-                visualization=models.WidgetVisualization.LINE_CHART,
-            ),
         ),
         "no-condition-query": models.Query(
             name="no-condition-query",
             title="My Query without a Condition",
-            event="MyEvent",
-            output=models.QueryOutputSelection(
-                name="total-count", nrql="SELECT COUNT(*) AS Total"
-            ),
-            display=models.QueryDisplay(
-                name="facet-with-timeseries",
-                nrql="FACET EventType LIMIT 30 TIMESERIES",
-                visualization=models.WidgetVisualization.LINE_CHART,
-            ),
+            nrql="SELECT COUNT(*) AS Total FROM MyEvent FACET EventType LIMIT 30 TIMESERIES",
+            visualization=models.WidgetVisualization.LINE_CHART,
         ),
     }
 
     actual = _parse_queries("queries.yml")
+
+    assert expected == actual
+
+
+def test_parse_inline_queries():
+    expected = {
+        "minimal-inline-query": models.Query(
+            name="minimal-inline-query",
+            title="Web Transactions by Response Status",
+            nrql="SELECT COUNT(*) FROM Transaction WHERE transactionType = 'Web' FACET response.status",
+            visualization=models.WidgetVisualization.FACET_BAR_CHART,
+        ),
+        "inline-query-with-notes": models.Query(
+            name="inline-query-with-notes",
+            title="Latest Transaction",
+            nrql="SELECT LATEST(timestamp) FROM Transaction",
+            visualization=models.WidgetVisualization.BILLBOARD,
+            notes="My notes",
+        ),
+    }
+
+    actual = _parse_queries("inline_queries.yml")
 
     assert expected == actual
 

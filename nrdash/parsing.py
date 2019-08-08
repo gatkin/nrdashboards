@@ -6,6 +6,7 @@ import attr
 import yaml
 
 from .models import (
+    ComponentizedQuery,
     Dashboard,
     Widget,
     InvalidExtendingConditionException,
@@ -193,6 +194,38 @@ def _find_query_component(query_config, component_type, component_dict, query_na
     return component
 
 
+def _parse_componentized_query_config(
+    query_name, query_config, conditions, output_selections, displays
+):
+    """Parse a componentized query config."""
+    required_fields = ["output", "display", "title", "event"]
+    _validate_required_query_fields(required_fields, query_config, query_name)
+
+    if "condition" in query_config:
+        condition = _find_query_component(
+            query_config, "condition", conditions, query_name
+        )
+    else:
+        condition = None
+
+    output = _find_query_component(
+        query_config, "output", output_selections, query_name
+    )
+    display = _find_query_component(query_config, "display", displays, query_name)
+
+    componentized_query = ComponentizedQuery(
+        event=query_config["event"], condition=condition, output=output, display=display
+    )
+
+    return Query(
+        name=query_name,
+        title=query_config["title"],
+        nrql=componentized_query.to_nrql(),
+        visualization=display.visualization,
+        notes=query_config.get("notes"),
+    )
+
+
 def _parse_extending_condition(condition_name, condition_config):
     """Parse an extending condition."""
     if "and" in condition_config:
@@ -231,6 +264,20 @@ def _parse_extending_condition(condition_name, condition_config):
     )
 
 
+def _parse_inline_query_config(query_name, query_config):
+    """Parse an inline query config."""
+    required_fields = ["title", "nrql", "visualization"]
+    _validate_required_query_fields(required_fields, query_config, query_name)
+
+    return Query(
+        name=query_name,
+        title=query_config["title"],
+        nrql=query_config["nrql"],
+        visualization=WidgetVisualization.from_str(query_config["visualization"]),
+        notes=query_config.get("notes"),
+    )
+
+
 def _parse_output_selection_nrql_component(output_config, conditions):
     """Parse an output selection configuration dictionary."""
     if isinstance(output_config, str):
@@ -257,30 +304,11 @@ def _parse_query_config(
     query_name, query_config, conditions, output_selections, displays
 ):
     """Parse a query configuration."""
-    required_fields = ["output", "display", "title", "event"]
-    for field in required_fields:
-        _validate_required_query_field(field, query_config, query_name)
+    if "nrql" in query_config:
+        return _parse_inline_query_config(query_name, query_config)
 
-    if "condition" in query_config:
-        condition = _find_query_component(
-            query_config, "condition", conditions, query_name
-        )
-    else:
-        condition = None
-
-    output = _find_query_component(
-        query_config, "output", output_selections, query_name
-    )
-    display = _find_query_component(query_config, "display", displays, query_name)
-
-    return Query(
-        name=query_name,
-        event=query_config["event"],
-        condition=condition,
-        output=output,
-        display=display,
-        title=query_config["title"],
-        notes=query_config.get("notes"),
+    return _parse_componentized_query_config(
+        query_name, query_config, conditions, output_selections, displays
     )
 
 
@@ -299,9 +327,9 @@ def _parse_widget(widget_config, dashboard_name, queries):
 
     widget = Widget(
         title=query.title,
-        query=query.to_nrql(),
+        query=query.nrql,
         notes=query.notes,
-        visualization=query.display.visualization,
+        visualization=query.visualization,
         row=widget_config["row"],
         column=widget_config["column"],
         width=widget_config["width"],
@@ -371,11 +399,12 @@ def _validate_required_field(exception, config_type, field_name, config, config_
         )
 
 
-def _validate_required_query_field(field_name, config, query_name):
-    """Validate required query field is present."""
-    _validate_required_field(
-        InvalidQueryConfigurationException, "query", field_name, config, query_name
-    )
+def _validate_required_query_fields(field_names, config, query_name):
+    """Validate all required query fields are present."""
+    for field_name in field_names:
+        _validate_required_field(
+            InvalidQueryConfigurationException, "query", field_name, config, query_name
+        )
 
 
 def _validate_required_widget_field(field_name, config, dashboard_name):
