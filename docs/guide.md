@@ -231,7 +231,7 @@ queries:
 
 dashboards:
   all-services-rabbit-mq-dashboard:
-    title: Greg Test - Sample Dashboard
+    title: Sample Dashboard
     widgets:
       - widget:
         query: rabbit-queue-publish-rate-query
@@ -247,7 +247,7 @@ dashboards:
         height: 1
     
   service-a-rabbit-mq-dashboard:
-    title: Greg Test - Sample Dashboard 2
+    title: Sample Dashboard 2
     widgets:
       - widget:
         query: service-a-rabbit-queue-publish-rate-query
