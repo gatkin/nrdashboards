@@ -1,7 +1,8 @@
 # New Relic Dashboard Builder
 [![Build Status](https://dev.azure.com/gregscottatkin/New%20Relic%20Dashboard%20Builder/_apis/build/status/gatkin.nrdashboards?branchName=master)](https://dev.azure.com/gregscottatkin/New%20Relic%20Dashboard%20Builder/_build/latest?definitionId=7&branchName=master)
-[![Coverage Status](https://coveralls.io/repos/github/gatkin/nrdashboards/badge.svg?branch=HEAD)](https://coveralls.io/github/gatkin/nrdashboards?branch=HEAD)
+[![Docs](https://img.shields.io/badge/docs-yes-blue)](https://gatkin.github.io/nrdashboards/)
 [![PyPI Package](https://img.shields.io/pypi/v/nrdash)](https://pypi.org/project/nrdash/)
+[![Coverage Status](https://coveralls.io/repos/github/gatkin/nrdashboards/badge.svg?branch=HEAD)](https://coveralls.io/github/gatkin/nrdashboards?branch=HEAD)
 [![License](https://img.shields.io/github/license/gatkin/nrdashboards?color=blue)](https://github.com/gatkin/nrdashboards/blob/master/LICENSE)
 [![Code Style](https://img.shields.io/badge/codestyle-black-black)](https://black.readthedocs.io/en/stable/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/nrdash)](https://pypi.org/project/nrdash/)
