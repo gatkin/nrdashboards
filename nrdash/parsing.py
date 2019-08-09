@@ -328,7 +328,9 @@ def _parse_widget(widget_config, dashboard_name, queries):
                 f"Invalid query name, {query_config}, specified for widget on dashboard {dashboard_name}"
             )
     else:
-        query = _parse_inline_query_config(f"{dashboard_name}-inline-query", query_config)
+        query = _parse_inline_query_config(
+            f"{dashboard_name}-inline-query", query_config
+        )
 
     widget = Widget(
         title=query.title,

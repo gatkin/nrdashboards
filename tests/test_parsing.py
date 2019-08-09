@@ -267,7 +267,7 @@ def test_parse_dashboard_with_inline_queries():
                     width=3,
                     height=2,
                 )
-            ]
+            ],
         )
     }
 
