@@ -23,6 +23,7 @@ twine = "*"
 responses = "*"
 mkdocs = "*"
 mkdocs-material = "*"
+pygments = "*"
 
 [requires]
 python_version = "3.7"

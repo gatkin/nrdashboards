@@ -1,3 +1,16 @@
 site_name: New Relic Dashboard Builder
+site_url: https://gatkin.github.io/nrdashboards/
+
+repo_name: gatkin/nrdashboards
+repo_url: https://github.com/gatkin/nrdashboards
+edit_uri: https://github.com/gatkin/nrdashboards/tree/master/docs
+
 theme:
   name: 'material'
+  palette:
+    primary: Light Green
+    accent: Light Green
+
+markdown_extensions:
+  - codehilite
+  - admonition

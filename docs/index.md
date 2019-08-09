@@ -29,3 +29,6 @@ To use New Relic Dashboard Builder, you must first acquire an [**admin** New Rel
 ```sh
 nrdash --api-key <YOUR_ADMIN_API_KEY> --account-id <YOUR_ACCOUNT_ID> <DASHBOARD_DEFINITION_YAML_FILE>
 ```
+
+!!! note
+    You must use an admin API key, not an account level API key to manage dashboards with New Relic Dashboard builder
