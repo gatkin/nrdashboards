@@ -161,7 +161,7 @@ The follow widget visualization values are supported as specified in the [New Re
 
 ## Output Selections
 
-Output selections are specified under the `output-selections` section and define the fields and aggregations selected from an NRQL query in the `SELECT` clause. 
+Output selections are specified under the `output-selections` section and define the fields and aggregations selected from an NRQL query in the `SELECT` clause.
 
 ### YAML Snippet
 
@@ -194,7 +194,7 @@ output-selections:
       function: COUNT(*)
       condition: status != 'Success'
       label: ErrorRate  # Optional
-  
+
   referenced-condition-output:
     filter:
       function: LATEST(timestamp)
@@ -236,3 +236,34 @@ output-selections:
 
 ## Conditions
 
+Conditions are specified in the `conditions` section and define the `WHERE` clauses used for NRQL queries.
+
+### YAML Snippet
+
+Conditions can either be *base* conditions consisting of only NRQL snippets or *extending* conditions that extend other conditions using the `and` and `or` condition combinators. The `and` and `or` condition combinators can combine any number of conditions but must always reference at least one other defined condition.
+
+```yaml
+conditions:
+  # A base condition
+  service-a-rabbit-queues-condition: displayName IN ('/service-a-queue-1', '/service-a-queue-2')
+
+  service-b-rabbit-queues-condition: displayName IN ('/service-b-queue-1', '/service-b-queue-2')
+
+  # Using the `and` combinator
+  service-a-production-rabbit-queues-condition:
+    and:
+      - condition: service-a-rabbit-queues-condition  # Reference a previously defined condition
+      - label.env = 'production'  # Combine with a raw NRQL snippet
+
+  service-b-production-rabbit-queues-condition:
+    and:
+      - condition: service-b-rabbit-queues-condition
+      - label.env = 'production'
+      - label.role = 'rabbitmq'
+
+  # Using the `or` combinator
+  all-rabbit-queues-condition:
+    or:
+      - condition: service-a-production-rabbit-queues-condition
+      - condition: service-b-production-rabbit-queues-condition
+```
