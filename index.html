@@ -49,7 +49,7 @@
       
         
         
-        <meta name="theme-color" content="#00bcd4">
+        <meta name="theme-color" content="#009688">
       
     
     
@@ -73,7 +73,7 @@
   
     
     
-    <body dir="ltr" data-md-color-primary="cyan" data-md-color-accent="cyan">
+    <body dir="ltr" data-md-color-primary="teal" data-md-color-accent="teal">
   
     <svg class="md-svg">
       <defs>
@@ -385,16 +385,14 @@
 </pre></div>
 
 
-<h2 id="usage">Usage</h2>
-<p>To use New Relic Dashboard Builder, you must first acquire an <a href="https://docs.newrelic.com/docs/insights/insights-api/manage-dashboards/insights-dashboard-api#requirements"><strong>admin</strong> New Relic API key</a>. Once you have an admin API key, you can provide the admin API key and your dashboard configuration YAML file to the  New Relic Dashboard Builder command line tool.</p>
-<div class="codehilite"><pre><span></span>nrdash --api-key &lt;YOUR_ADMIN_API_KEY&gt; --account-id &lt;YOUR_ACCOUNT_ID&gt; &lt;DASHBOARD_DEFINITION_YAML_FILE&gt;
-</pre></div>
-
-
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You must use an admin API key, not an account level API key to manage dashboards with New Relic Dashboard builder</p>
+<p>New Relic Dashboard Builder only works with Python 3.6 or higher.</p>
 </div>
+<h2 id="usage">Usage</h2>
+<p>To use New Relic Dashboard Builder, you must first acquire an <a href="https://docs.newrelic.com/docs/insights/insights-api/manage-dashboards/insights-dashboard-api#requirements"><strong>admin</strong> New Relic API key</a>. Once you have an admin API key, you can configure your New Relic dashboards using the definitions in the YAML definition file by running the <code>nrdash</code> command line tool.</p>
+<div class="codehilite"><pre><span></span>nrdash --api-key &lt;YOUR_ADMIN_API_KEY&gt; --account-id &lt;YOUR_ACCOUNT_ID&gt; &lt;DASHBOARD_DEFINITION_YAML_FILE&gt;
+</pre></div>
                 
                   
                 
