@@ -58,6 +58,7 @@ class WidgetVisualization(Enum):
     COMPARISON_LINE_CHART = "comparison_line_chart"
     MARKDOWN = "markdown"
     METRIC_LINE_CHART = "metric_line_chart"
+    LIST = "list"
 
     @staticmethod
     def from_str(str_value: str):
