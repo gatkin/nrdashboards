@@ -22,14 +22,22 @@ package:
 
 per-commit: lint coverage
 
+per-release: publish-pypi publish-docs
+
 publish-coverage:
 	coveralls
+
+publish-docs:
+	mkdocs gh-deploy
 
 publish-pypi: package
 	python3 -m twine upload --verbose --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} --repository-url https://upload.pypi.org/legacy/ dist/*
 
 publish-pypi-test: package
 	python3 -m twine upload --verbose --username ${PYPI_TEST_USERNAME} --password ${PYPI_TEST_PASSWORD} --repository-url https://test.pypi.org/legacy/ dist/*
+
+serve-docs:
+	mkdocs serve
 
 test:
 	python -m pytest -vv

@@ -55,7 +55,7 @@ jobs:
         displayName: Install Dependencies
         workingDirectory: '$(System.DefaultWorkingDirectory)'
       
-      - bash: 'python -m pipenv run make publish-pypi'
+      - bash: 'python -m pipenv run make per-release'
         displayName: Publish Package to PyPi
         workingDirectory: '$(System.DefaultWorkingDirectory)'
         env:
