@@ -114,27 +114,50 @@ Componentized queries are defined with the following arguments
 
 ## Displays
 
+Displays are specified under the `displays` section and specify the widget visualization type as well as how a query should be displayed using any `SINCE`, `UNTIL`, `WITH TIMEZONE`, `COMPARE WITH`, or `TIMESERIES` clauses for the query.
+
+### YAML Snippet
+
+```yaml
+displays:
+  visualization-only-display:
+    visualization: billboard
+
+  display-with-clauses:
+    visualization: billboard_comparison
+    nrql: FACET appName COMPARE WITH 1 WEEK AGO  # Optional
+```
+
+### Arguments
+
+| Argument | Description| Required?|
+|:----------:|------------|:------------:|
+| `visualization` | A [widget visualization enum value](#widget-visualization-values). | Required |
+| `nrql` | An NRQL snippet containing only `SINCE`, `UNTIL`, `WITH TIMEZONE`, `COMPARE WITH`, or `TIMESERIES` clauses. | Optional |
+
 ### Widget Visualization Values
 
 The follow widget visualization values are supported as specified in the [New Relic API documentation](https://docs.newrelic.com/docs/insights/insights-api/manage-dashboards/insights-dashboard-api#supported)
 
-* `event_table`
-* `line_chart`
-* `facet_table`
-* `facet_bar_chart`
-* `facet_pie_chart`
-* `billboard`
-* `faceted_area_chart`
-* `faceted_line_chart`
-* `comparison_line_chart`
-* `heatmap`
-* `histogram`
-* `billboard_comparison`
-* `attribute_sheet`
-* `funnel`
-* `gauge`
-* `json`
-* `list`
+| Widget Visualization Values |
+|--------------|
+| `event_table` |
+| `line_chart` |
+| `facet_table` |
+| `facet_bar_chart` |
+| `facet_pie_chart` |
+| `billboard` |
+| `faceted_area_chart` |
+| `faceted_line_chart` |
+| `comparison_line_chart` |
+| `heatmap` |
+| `histogram` |
+| `billboard_comparison` |
+| `attribute_sheet` |
+| `funnel` |
+| `gauge` |
+| `json` |
+| `list` |
 
 ## Output Selections
 

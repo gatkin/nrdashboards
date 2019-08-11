@@ -8,8 +8,8 @@ edit_uri: https://github.com/gatkin/nrdashboards/tree/master/docs
 theme:
   name: 'material'
   palette:
-    primary: Cyan
-    accent: Cyan
+    primary: Teal
+    accent: Teal
 
 markdown_extensions:
   - codehilite
