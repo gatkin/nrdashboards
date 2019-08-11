@@ -161,5 +161,78 @@ The follow widget visualization values are supported as specified in the [New Re
 
 ## Output Selections
 
+Output selections are specified under the `output-selections` section and define the fields and aggregations selected from an NRQL query in the `SELECT` clause. 
+
+### YAML Snippet
+
+There are three different types of output selections: Raw NRQL snippets, aggregation functions, and multiple outputs.
+
+#### Raw NRQL Snippets
+
+Raw NRQL snippets are clauses such as `SELECT LATEST(timestamp)` can be defined as
+
+```yaml
+output-selections:
+  raw-nrql-output: LATEST(timestamp)
+  raw-nrql-output-with-label: LATEST(timestamp) AS `Latest Event`
+```
+
+#### Aggregation Functions
+
+Aggregation functions, which include `PERCENTAGE` and `FILTER` functions, are clauses such as
+
+```sql
+SELECT FILTER(LATEST(timestamp), WHERE status = 'success')
+SELECT PERCENTAGE(COUNT(*), WHERE status != 'success') AS ErrorRate
+```
+These types of output selection can specify their `WHERE` clauses either inline or by referencing a [condition](#conditions) defined in the `conditions` section. They are defined as
+
+```yaml
+output-selections:
+  inline-condition-output:
+    percentage:
+      function: COUNT(*)
+      condition: status != 'Success'
+      label: ErrorRate  # Optional
+  
+  referenced-condition-output:
+    filter:
+      function: LATEST(timestamp)
+      condition: successful-events
+```
+
+#### Multiple Output Selections
+
+Finally, queries can include multiple output selections, such as
+
+```sql
+SELECT FILTER(LATEST(TIMESTAMP), WHERE status = 'success') AS LatestSuccess, SELECT FILTER(LATEST(TIMESTAMP), WHERE status != 'success') LastFailure
+```
+
+Multiple output selections can be specified by using a list of output selections.
+
+```yaml
+output-selections:
+  multiple-output:
+    - percentage:
+        function: COUNT(*)
+        condition: status != 'Success'
+    - LATEST(timestamp) AS `Latest Event`
+    - filter:
+        function: LATEST(timestamp)
+        condition: status = 'Success'
+        label: Latest Success  # Optional
+```
+
+### Arguments
+
+`percentage` and `filter` output selections are specified with the following arguments
+
+| Argument | Description| Required?|
+|:----------:|------------|:------------:|
+| function | The aggregation function used, e.g. `COUNT(*)` or `LATEST(timestamp)` | Required |
+| condition | The condition used in the `WHERE` clause of the function. May either be defined inline as an NRQL snippet or referenced a defined [condition](#conditions).| Required |
+| Label | The `AS` clause for the output. The label will automatically be surrounded by backticks (`), so labels may contain spaces. | Optional |
+
 ## Conditions
 
