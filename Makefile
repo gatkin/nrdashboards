@@ -22,8 +22,6 @@ package:
 
 per-commit: lint coverage
 
-per-release: publish-pypi publish-docs
-
 publish-coverage:
 	coveralls
 
