@@ -11,7 +11,7 @@ New Relic Dashboard Builder is a command-line tool for configuring New Relic das
 
 ## Usage
 
-Install with pip
+Install with pip, note that New Relic Dashboard Builder only works with Python 3.6 or higher
 
 ```sh
 pip install nrdash

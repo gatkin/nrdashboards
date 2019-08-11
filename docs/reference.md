@@ -15,6 +15,9 @@ Options:
   --help                Show this message and exit.
 ```
 
+!!! note
+    New Relic Dashboard Builder must use an admin API key, not an account level API key
+
 ## Dashboards
 
 Dashboards definitions are specified under the `dashboards` section. The dashboard title is used to uniquely identify each dashboard in an account. Any existing dashboards on the account with the same title will be overwritten with the definition in the configuration file. A new dashboard will be created if no dashboards exist with the title.

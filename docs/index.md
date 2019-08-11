@@ -22,13 +22,13 @@ The New Relic Dashboard Builder command line tool that can be installed from [Py
 pip install nrdash
 ```
 
+!!! note
+    New Relic Dashboard Builder only works with Python 3.6 or higher.
+
 ## Usage
 
-To use New Relic Dashboard Builder, you must first acquire an [**admin** New Relic API key](https://docs.newrelic.com/docs/insights/insights-api/manage-dashboards/insights-dashboard-api#requirements). Once you have an admin API key, you can provide the admin API key and your dashboard configuration YAML file to the  New Relic Dashboard Builder command line tool.
+To use New Relic Dashboard Builder, you must first acquire an [**admin** New Relic API key](https://docs.newrelic.com/docs/insights/insights-api/manage-dashboards/insights-dashboard-api#requirements). Once you have an admin API key, you can configure your New Relic dashboards using the definitions in the YAML definition file by running the `nrdash` command line tool.
 
 ```sh
 nrdash --api-key <YOUR_ADMIN_API_KEY> --account-id <YOUR_ACCOUNT_ID> <DASHBOARD_DEFINITION_YAML_FILE>
 ```
-
-!!! note
-    You must use an admin API key, not an account level API key to manage dashboards with New Relic Dashboard builder

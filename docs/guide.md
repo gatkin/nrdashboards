@@ -80,7 +80,7 @@ dashboards:
         column: 1
         width: 3
         height: 2
-  
+
   sample-dashboard-2:
     title: Sample Dashboard 2
     widgets:
@@ -206,7 +206,7 @@ queries:
     condition: all-rabbit-queues-condition
     output: total-consumers-output
     display: current-value-by-name-display
-  
+
   rabbit-queue-publish-rate-query:
     title: RabbitMQ Message Publish Rate
     event: RabbitmqQueueSample
@@ -220,7 +220,7 @@ queries:
     condition: service-a-production-rabbit-queues-condition
     output: total-consumers-output
     display: current-value-by-name-display
-  
+
   service-a-rabbit-queue-publish-rate-query:
     title: RabbitMQ Message Publish Rate
     event: RabbitmqQueueSample
@@ -245,7 +245,7 @@ dashboards:
         column: 1
         width: 1
         height: 1
-    
+
   service-a-rabbit-mq-dashboard:
     title: Sample Dashboard 2
     widgets:
