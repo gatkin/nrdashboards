@@ -58,7 +58,7 @@ Widgets in a dashboard are defined with the following set of arguments
 
 | Argument | Description| Required?|
 |:----------:|------------|:------------:|
-| `query` | The query that specifies the data displayed by the widget. The query can be either an *inline query* or a *reference* to a query defined in the `queries` section. | Required |
+| `query` | The [query](#queries) that specifies the data displayed by the widget. The query can be either an *inline query* or a *reference* to a query defined in the `queries` section. | Required |
 | `row` | The row of the dashboard on which the widget should be displayed. Rows are numbered starting from 1. | Required |
 | `column` | The column of dashboard on which the widget should be displayed. Valid column values are 1, 2, or 3. | Required |
 | `width` | The width of the widget. Valid width values are 1, 2, or 3. | Required |
@@ -66,6 +66,51 @@ Widgets in a dashboard are defined with the following set of arguments
 
 
 ## Queries
+
+Queries are specified in the `queries` section and define complete NRQL queries that are used to display data in widgets on a dashboard.
+
+### YAML Snippet
+
+Queries can be defined as either *inline queries* or *componentized queries*. Componentized queries allow query components to be shared between multiple queries to avoid duplication in query definitions.
+
+```YAML
+queries:
+  my-inline-query:
+    title: Web Transactions by Response Status
+    nrql: SELECT COUNT(*) FROM Transaction WHERE transactionType = 'Web' FACET response.status
+    visualization: facet_bar_chart
+    notes: Notes about my inline query  # Optional
+
+  my-componentized-query:
+    title: My Query
+    event: MyEvent
+    condition: prod-events  # Optional
+    output: total-count
+    display: facet-with-timeseries
+    notes: Notes about my query  # Optional
+```
+
+### Arguments
+
+Inline queries are defined with the following arguments
+
+| Argument | Description| Required?|
+|:----------:|------------|:------------:|
+| `title` | The title of the query displayed as the title on the widget in the dashboard. | Required |
+| `nrql` | The complete NRQL query string. | Required |
+| `visualization` | A [widget visualization enum value](#widget-visualization-values). | Required |
+| `notes` | Notes for the query displayed as the notes on the widget in the dashboard. | Optional |
+
+Componentized queries are defined with the following arguments
+
+| Argument | Description| Required?|
+|:----------:|------------|:------------:|
+| `title` | The title of the query displayed as the title on the widget in the dashboard. | Required |
+| `event` | The New Relic insights event used in the query. | Required |
+| `condition` | The name of the [condition](#conditions) used in the query. | Optional |
+| `output` | The name of the [output selection](#output-selections) used in the query. | Required |
+| `display` | The name of the [display configuration](#displays) used in the query. | Required |
+| `notes` | Notes for the query displayed as the notes on the widget in the dashboard. | Optional |
 
 ## Displays
 
