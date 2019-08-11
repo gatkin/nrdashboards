@@ -6,8 +6,8 @@ from nrdash import new_relic_api, parsing
 
 @click.command()
 @click.argument("config-file", type=str, required=True)
-@click.option("--api-key", type=str, required=True)
-@click.option("--account-id", type=int, required=True)
+@click.option("--api-key", type=str, required=True, help="New Relic admin API key")
+@click.option("--account-id", type=int, required=True, help="New Relic account id")
 def build(config_file, api_key, account_id):
     """Build New Relic dashboards based on YAML configuration."""
     dashboards = parsing.parse_file(config_file)
