@@ -54,7 +54,7 @@ Dashboards are defined with the following set of arguments
 
 | Argument | Description| Required?|
 |:----------:|------------|:------------:|
-| `title`     | Title of the dashboard. The title is used ot uniquely identify the dashboard and therefore should be unique. | Required |
+| `title`     | Title of the dashboard. The title is used to uniquely identify the dashboard and therefore should be unique. | Required |
 | `widgets`   | List of widgets that are included in the dashboard. | Required |
 
 Widgets in a dashboard are defined with the following set of arguments
@@ -63,7 +63,7 @@ Widgets in a dashboard are defined with the following set of arguments
 |:----------:|------------|:------------:|
 | `query` | The [query](#queries) that specifies the data displayed by the widget. The query can be either an *inline query* or a *reference* to a query defined in the `queries` section. | Required |
 | `row` | The row of the dashboard on which the widget should be displayed. Rows are numbered starting from 1. | Required |
-| `column` | The column of dashboard on which the widget should be displayed. Valid column values are 1, 2, or 3. | Required |
+| `column` | The column of the dashboard on which the widget should be displayed. Valid column values are 1, 2, or 3. | Required |
 | `width` | The width of the widget. Valid width values are 1, 2, or 3. | Required |
 | `height` | The height of the widget. | Required |
 

@@ -6,7 +6,7 @@ This guide provides a walkthrough for getting started with using New Relic Dashb
 
 New Relic dashboards are composed of one or more widgets. Each widget has a size and location on the dashboard as well as an NRQL query that defines the data that is displayed by the widget.
 
-Suppose we wanted to create a dashboard consisting the following widget:
+Suppose we wanted to create a dashboard consisting of the following widget:
 
 ![Basic Dashboard](./images/BasicWidget.png)
 
