@@ -4,7 +4,12 @@ import click
 from nrdash import new_relic_api, parsing
 
 
-@click.command()
+@click.group()
+def nrdash():
+    """Build New Relic dashboards."""
+
+
+@nrdash.command()
 @click.argument("config-file", type=str, required=True)
 @click.option("--api-key", type=str, required=True, help="New Relic admin API key")
 @click.option("--account-id", type=int, required=True, help="New Relic account id")
@@ -23,10 +28,13 @@ def build(config_file, api_key, account_id):
             client.create_dashboard(dashboard)
 
 
-def main():
-    """Provide main entry point."""
-    build()  # pylint: disable=no-value-for-parameter,too-many-function-args
+@nrdash.command()
+@click.argument("config-file", type=str, required=True)
+def lint(config_file):
+    """Lint New Relic dashboard YAML configuration."""
+    parsing.parse_file(config_file)
+    print(f"{config_file} is valid")
 
 
 if __name__ == "__main__":
-    main()
+    nrdash()
