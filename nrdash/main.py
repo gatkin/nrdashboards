@@ -5,11 +5,11 @@ from nrdash import new_relic_api, parsing
 
 
 @click.group()
-def nrdash():
+def main():
     """Build New Relic dashboards."""
 
 
-@nrdash.command()
+@main.command()
 @click.argument("config-file", type=str, required=True)
 @click.option("--api-key", type=str, required=True, help="New Relic admin API key")
 @click.option("--account-id", type=int, required=True, help="New Relic account id")
@@ -28,7 +28,7 @@ def build(config_file, api_key, account_id):
             client.create_dashboard(dashboard)
 
 
-@nrdash.command()
+@main.command()
 @click.argument("config-file", type=str, required=True)
 def lint(config_file):
     """Lint New Relic dashboard YAML configuration."""
@@ -37,4 +37,4 @@ def lint(config_file):
 
 
 if __name__ == "__main__":
-    nrdash()
+    main()

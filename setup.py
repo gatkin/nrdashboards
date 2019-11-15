@@ -11,7 +11,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/gatkin/nrdashboards",
-    version="0.2.0",
+    version="0.2.1",
     author="Greg Atkin",
     author_email="greg.scott.atkin@gmail.com",
     license="MIT",
