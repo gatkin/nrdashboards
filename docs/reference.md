@@ -5,14 +5,16 @@
 To configure New Relic dashboards based on a YAML definition file, the New Relic Dashboard Builder tool must be invoked from the command line with all required arguments.
 
 ```sh
-Usage: nrdash [OPTIONS] CONFIG_FILE
+Usage: nrdash [OPTIONS] COMMAND [ARGS]...
 
-  Build New Relic dashboards based on YAML configuration.
+  Build New Relic dashboards.
 
 Options:
-  --api-key TEXT        New Relic admin API key  [required]
-  --account-id INTEGER  New Relic account id  [required]
-  --help                Show this message and exit.
+  --help  Show this message and exit.
+
+Commands:
+  build  Build New Relic dashboards based on YAML configuration.
+  lint   Lint New Relic dashboard YAML configuration.
 ```
 
 !!! note

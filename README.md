@@ -38,7 +38,7 @@ dashboards:
 Run the New Relic Dashboard Builder tool to create or update your New Relic dashboards based on the YAML definition file.
 
 ```sh
-nrdash --api-key <YOUR_ADMIN_API_KEY> --account-id <YOUR_ACCOUNT_ID> <DASHBOARD_DEFINITION_YAML_FILE>
+nrdash build --api-key <YOUR_ADMIN_API_KEY> --account-id <YOUR_ACCOUNT_ID> <DASHBOARD_DEFINITION_YAML_FILE>
 ```
 
 ## Documentation
